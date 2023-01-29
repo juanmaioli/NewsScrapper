@@ -1,0 +1,20 @@
+{
+  "name": "newsscrapper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "sourceType": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "file-type": "^18.2.0",
+    "got": "^12.5.3",
+    "puppeteer": "^19.5.2"
+  }
+}

@@ -1,0 +1,125 @@
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Juan Maioli">
+    <meta name="author" content="https://juanmaioli.com.ar">
+    <title>News Scrapper</title>
+    <link rel="apple-touch-icon" sizes="57x57" href="./img/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="./img/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./img/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="./img/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./img/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="./img/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="./img/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="./img/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./img/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="./img/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="./img/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./img/favicon-16x16.png">
+    <link rel="manifest" href="./img/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="./img/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+
+    <!-- Google Fonts-->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  </head>
+  <style>
+    .card-body::-webkit-scrollbar {width: 6px;}
+    .card-body::-webkit-scrollbar-thumb {background: rgb(98, 98, 98);border-radius: 3px;}
+    .card-body::-webkit-scrollbar-thumb:hover {background:  #ddd;}
+    .card-body::-webkit-scrollbar-track {background: #333;}
+    .card-body{background-color: #333;}
+    .card-footer{background-color: #222;}
+    .card-header{background-color: #222;}
+    .card{min-height: 700px;max-height: 700px;border: double 2px transparent;border-radius: 8px;background-image: linear-gradient(white, white), radial-gradient(circle at top left, #f00,#3020ff);background-origin: border-box;background-clip: padding-box, border-box;}
+    body{background-color: #111;color:#ddd}
+  </style>
+  <body class="container-fluid">
+    <div class="row mt-5 mb-4">
+      <div class="col-6"><h4>Seleccionar Medio</h4></div>
+      <div class="col-6">
+        <select id="medios" class="form-select" onchange="obtenerNoticias(this.value)">
+          <option value="cronista.json">El Cronista</option>
+          <option value="infobae.json">Infobae</option>
+          <option value="lanacion.json">La Nacion</option>
+          <option value="lmneuquen.json">Lmneuquen</option>
+          <option value="perfil.json">Perfil</option>
+          <option value="rionegro.json">Río Negro</option>
+        </select>
+      </div>
+    </div>
+    <div id="noticias" class="row"></div>
+
+    <!-- Bootstrap JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      obtenerNoticias()
+      async function obtenerNoticias(medio='cronista.json'){
+        let total = 0
+        const url = './json/' + medio
+        const noticias = document.querySelector('#noticias')
+        noticias.innerHTML = ''
+        const response = await fetch(url)
+        const ultimasNoticias = await response.json()
+        const resultados = ultimasNoticias.length +1
+        for(let noticia of ultimasNoticias){
+          total++
+          let imagenNoticia = ''
+          let descripcion = ''
+          const link = `<a href='${noticia.link}' class="btn btn-outline-secondary" target="_blank">Ver</a>`
+          if(noticia.imagen){imagenNoticia = `<div class="col"><img src="${noticia.imagen}" class="img-fluid rounded"></div>`}
+          else{imagenNoticia = `<div class="col"><img src="./img/No-Image-Placeholder.svg" class="img-fluid rounded"></div>`}
+          // if(noticia.description){descripcion = noticia.description.slice(0, 140)+'...'}
+          noticias.innerHTML +=`
+            <div class="col-md-4 mb-3">
+            <div class="card mb-3">
+              <div class="card-header">
+                <div class="row">
+                  <div class="col-10">
+                    <h5 class="">${noticia.medio}(${noticia.indice} de ${resultados})</h5><span class="fst-italic small">${noticia.fechaArticulo}</span>
+                  </div>
+                  <div class="col text-end">
+                    ${link}
+                  </div>
+                </div>
+                </div>
+              <div class="card-body overflow-auto">
+              <div class="row mb-1"><div class="col"><h4>${noticia.titular}</h4><p class="fst-italic small tetxt-muted">${noticia.resumen}</p></div></div>
+              <div class="row">
+                <div class="col mb-1">${imagenNoticia}</div>
+              </div>
+              <div class="row">
+                <div class="col"><p class="small">${noticia.articulo.slice(0,500)+' ...'}</p></div>
+              </div>
+              </div>
+              <div class="card-footer"><span class="fst-italic small tetxt-muted">Obtenido: ${timeConverter(noticia.fechaObtenido)}</div>
+              </div>
+            </div>`
+        }
+      }
+
+    function timeConverter(UNIX_timestamp){
+      var a = new Date(UNIX_timestamp * 1000);
+      var months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dec'];
+      var year = a.getFullYear();
+      // var month = months[a.getMonth()];
+      var month = a.getMonth() + 1;
+      var date = a.getDate();
+      var hour = a.getHours();
+      var min = a.getMinutes();
+      var sec = a.getSeconds();
+      var time = year + '-' + month.toString().padStart(2, '0')  + '-' + date.toString().padStart(2, '0') + ' ' + hour + ':' + min
+      return time;
+    }
+    </script>
+  </body>
+</html>

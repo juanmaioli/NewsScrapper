@@ -2,6 +2,7 @@ import {writeFile} from 'node:fs/promises'
 import * as cheerio from 'cheerio'
 import * as puppeteer from 'puppeteer'
 
+
 async function OleScrap(cantidadMaxDeNoticias=2){
   const url = 'https://www.ole.com.ar/'
   const browser = await puppeteer.launch({headless: true,args: ['--no-sandbox', '--disable-setuid-sandbox']})

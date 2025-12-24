@@ -12,9 +12,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.12",
-    "file-type": "^18.2.0",
-    "got": "^12.5.3",
-    "puppeteer": "^24.22.3"
+    "cheerio": "^1.1.2",
+    "file-type": "^21.1.1",
+    "got": "^14.6.5",
+    "puppeteer": "^24.34.0"
   }
 }

@@ -6,24 +6,56 @@
     <meta name="description" content="News Scrapper - Noticias actualizadas on-demand">
     <meta name="author" content="Juan Maioli">
     <title>News Scrapper</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="./img/favicon-32x32.png">
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
 
     <!-- Google Fonts-->
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-    
+
+    <!-- Favicon Emoji -->
+    <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📰</text></svg>">
     <style>
+      :root {
+        --bg-color: #111;
+        --text-color: #ddd;
+        --card-bg: #333;
+        --header-footer-bg: #222;
+        --muted-text: #6c757d;
+        --border-gradient: radial-gradient(circle at top left, #f00, #3020ff);
+        --hero-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+      }
+
+      [data-theme="light"] {
+        --bg-color: #f8f9fa;
+        --text-color: #212529;
+        --card-bg: #ffffff;
+        --header-footer-bg: #e9ecef;
+        --muted-text: #6c757d;
+        --border-gradient: radial-gradient(circle at top left, #ff7e5f, #feb47b);
+        --hero-gradient: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+      }
+
       .card-body::-webkit-scrollbar {width: 6px;}
       .card-body::-webkit-scrollbar-thumb {background: rgb(98, 98, 98);border-radius: 3px;}
       .card-body::-webkit-scrollbar-thumb:hover {background:  #ddd;}
-      .card-body::-webkit-scrollbar-track {background: #333;}
-      .card-body{background-color: #333;}
-      .card-footer{background-color: #222;}
-      .card-header{background-color: #222;}
-      .card{min-height: 700px;max-height: 700px;border: double 2px transparent;border-radius: 8px;background-image: linear-gradient(white, white), radial-gradient(circle at top left, #f00,#3020ff);background-origin: border-box;background-clip: padding-box, border-box;}
-      body{background-color: #111;color:#ddd; font-family: 'Roboto', sans-serif;}
+      .card-body::-webkit-scrollbar-track {background: var(--card-bg);}
+      .card-body{background-color: var(--card-bg);}
+      .card-footer{background-color: var(--header-footer-bg);}
+      .card-header{background-color: var(--header-footer-bg);}
+      .card{
+        min-height: 700px;
+        max-height: 700px;
+        border: double 2px transparent;
+        border-radius: 8px;
+        background-image: linear-gradient(var(--card-bg), var(--card-bg)), var(--border-gradient);
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        transition: transform 0.2s, background-image 0.3s;
+      }
+      .card:hover { transform: translateY(-5px); }
+      body{background-color: var(--bg-color); color: var(--text-color); font-family: 'Roboto', sans-serif; transition: background-color 0.3s, color 0.3s;}
       
       #loader {
         display: none;
@@ -34,39 +66,135 @@
         width: 3rem;
         height: 3rem;
       }
+      .hero-section {
+        background: var(--hero-gradient);
+        padding: 60px 0;
+        border-bottom: 1px solid #34495e;
+        transition: background 0.3s;
+      }
+
+      /* Switch de Tema */
+      .theme-switch-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 15px;
+      }
+      .theme-switch {
+        display: inline-block;
+        height: 28px;
+        position: relative;
+        width: 50px;
+      }
+      .theme-switch input { display: none; }
+      .slider {
+        background-color: #ccc;
+        bottom: 0;
+        cursor: pointer;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: .4s;
+        border-radius: 34px;
+      }
+      .slider:before {
+        background-color: white;
+        bottom: 4px;
+        content: "";
+        height: 20px;
+        left: 4px;
+        position: absolute;
+        transition: .4s;
+        width: 20px;
+        border-radius: 50%;
+      }
+      input:checked + .slider { background-color: #2196F3; }
+      input:checked + .slider:before { transform: translateX(22px); }
+      .emoji-toggle { font-size: 1.2rem; cursor: pointer; }
+
+      /* Mejora del Select */
+      .input-group-text {
+        background-color: var(--header-footer-bg);
+        color: var(--text-color);
+        border: 1px solid rgba(128, 128, 128, 0.2);
+        font-weight: 500;
+      }
+      .form-select {
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        border: 1px solid rgba(128, 128, 128, 0.2);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .form-select:focus {
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        border-color: #2196F3;
+        box-shadow: 0 0 0 0.25rem rgba(33, 150, 243, 0.25);
+      }
+      .form-select:hover {
+        border-color: rgba(33, 150, 243, 0.5);
+      }
+      option {
+        background-color: var(--card-bg);
+        color: var(--text-color);
+      }
     </style>
   </head>
-  <body class="container-fluid">
-    <div class="row mt-5 mb-4 align-items-center">
-      <div class="col-md-6">
-        <h2 class="mb-0">📰 News Scrapper</h2>
-        <p class="text-muted small">Actualización automática al cambiar de medio</p>
+  <body class="container-fluid" data-theme="dark">
+      <!-- Header Hero -->
+  <div class="hero-section text-center shadow mb-5">
+    <div class="container position-relative">
+      <h1 class="display-3 fw-bold mb-3">📰 News Scrapper</h1>
+      
+      <!-- Switch de Tema -->
+      <div class="theme-switch-wrapper mb-4">
+        <span class="emoji-toggle" onclick="setTheme('light')">☀️</span>
+        <label class="theme-switch" for="checkbox">
+          <input type="checkbox" id="checkbox" onchange="toggleTheme(this)" />
+          <div class="slider"></div>
+        </label>
+        <span class="emoji-toggle" onclick="setTheme('dark')">🌙</span>
       </div>
-      <div class="col-md-6">
-        <div class="input-group">
-          <label class="input-group-text" for="medios">Seleccionar Medio</label>
-          <select id="medios" class="form-select" onchange="actualizarYMostrar(this.value)">
-            <option value="cnnespanol.json">CNN en Español</option>
-            <option value="cronista.json">El Cronista</option>
-            <option value="elpais.json">El País Argentina</option>
-            <option value="googlenews.json">Google News</option>
-            <option value="infobae.json" selected>Infobae</option>
-            <option value="lanacion.json">La Nacion</option>
-            <option value="lmneuquen.json">Lmneuquen</option>
-            <option value="ole.json">Olé</option>
-            <option value="perfil.json">Perfil</option>
-            <option value="rionegro.json">Río Negro</option>
+    </div>
+    
+    <div class="row mt-2 mb-4 align-items-center justify-content-center">
+      <div class="col-md-3"></div>
+      <div class="col-md-3">
+        <p class="small opacity-75">Actualización automática al cambiar de medio</p>
+      </div>
+      <div class="col-md-3">
+        <div class="input-group shadow-lg">
+          <label class="input-group-text" for="medios">
+             🌐 Medio
+          </label>
+          <select id="medios" class="form-select form-select-lg" onchange="actualizarYMostrar(this.value)">
+            <option value="cnnespanol.json">🌎 CNN en Español</option>
+            <option value="cronista.json">📈 El Cronista</option>
+            <option value="elpais.json">🌍 El País</option>
+            <option value="googlenews.json">🔍 Google News</option>
+            <option value="infobae.json" selected>🗞️ Infobae</option>
+            <option value="lanacion.json">🏛️ La Nacion</option>
+            <option value="lmneuquen.json">🏔️ Lmneuquen</option>
+            <option value="ole.json">⚽ Olé</option>
+            <option value="perfil.json">🖋️ Perfil</option>
+            <option value="rionegro.json">🍎 Río Negro</option>
           </select>
         </div>
       </div>
+            <div class="col-md-3"></div>
     </div>
+  </div>
+
 
     <div id="loader">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Cargando...</span>
       </div>
       <h4 class="mt-3">Actualizando noticias...</h4>
-      <p class="text-muted">Esto puede tardar unos segundos</p>
+      <p class="">Esto puede tardar unos segundos</p>
     </div>
 
     <div id="noticias" class="row"></div>
@@ -96,10 +224,10 @@
           
           console.log('Servidor procesando:', scrapResult.message)
 
-          // 3. Esperar a que el scraping termine en segundo plano
-          // Para esta versión simple, esperamos 5 segundos antes de intentar cargar el JSON
-          // En una versión pro, podríamos pollear un endpoint de status
-          await new Promise(resolve => setTimeout(resolve, 5000))
+          // 3. Esperar solo si es una actualización nueva
+          if (scrapResult.status === 'started') {
+            await new Promise(resolve => setTimeout(resolve, 5000))
+          }
 
           // 4. Intentar obtener los nuevos datos del JSON
           const dataResponse = await fetch(`./json/${medio}?t=${Date.now()}`) // Cache busting
@@ -132,7 +260,11 @@
         let htmlContent = ''
         for(let noticia of ultimasNoticias){
           let imagenNoticia = ''
-          const link = `<a href='${noticia.link}' class="btn btn-outline-primary" target="_blank">Ver</a>`
+          const botones = `
+            <div class="d-flex gap-1 justify-content-end">
+              <a href='${noticia.link}' class="btn btn-outline-primary btn-sm" target="_blank">Ver</a>
+              <a href='https://www.google.com/search?q=${encodeURIComponent(noticia.titular)}' class="btn btn-outline-info btn-sm" target="_blank">Buscar</a>
+            </div>`
           
           if(noticia.imagen){
             imagenNoticia = `<div class="col"><img src="${noticia.imagen}" class="img-fluid rounded" alt="${noticia.titular}" onerror="this.src='./img/No-Image-Placeholder.svg'"></div>`
@@ -145,12 +277,12 @@
               <div class="card">
                 <div class="card-header">
                   <div class="row align-items-center">
-                    <div class="col-9">
+                    <div class="col-7">
                       <h5 class="mb-0 small">${noticia.medio}</h5>
                       <span class="fst-italic smaller text-muted">${noticia.fechaArticulo || 'Sin fecha'}</span>
                     </div>
-                    <div class="col-3 text-end">
-                      ${link}
+                    <div class="col-5">
+                      ${botones}
                     </div>
                   </div>
                 </div>
@@ -160,7 +292,7 @@
                   <div class="row mb-3">
                     ${imagenNoticia}
                   </div>
-                  <p class="small text-light">${noticia.articulo.slice(0, 350)}...</p>
+                  <p class="small">${noticia.articulo.slice(0, 350)}...</p>
                 </div>
                 <div class="card-footer">
                   <div class="d-flex justify-content-between align-items-center">
@@ -173,6 +305,24 @@
         }
         noticiasContainer.innerHTML = htmlContent
       }
+
+      function toggleTheme(checkbox) {
+        if (checkbox.checked) {
+          setTheme('dark');
+        } else {
+          setTheme('light');
+        }
+      }
+
+      function setTheme(theme) {
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        document.getElementById('checkbox').checked = (theme === 'dark');
+      }
+
+      // Cargar tema guardado
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      setTheme(savedTheme);
 
       function timeConverter(UNIX_timestamp){
         if (!UNIX_timestamp) return 'N/A';

@@ -1,90 +1,70 @@
 import {writeFile} from 'node:fs/promises'
 import * as cheerio from 'cheerio'
 
-// lmneuquenScrap()
 async function lmneuquenScrap(cantidadMaxDeNoticias=2){
   const url = 'https://www.lmneuquen.com'
-  const pagina = await fetch(url)
-  const contenido = await pagina.text()
-  const $ = cheerio.load(contenido)
   let noticias = []
-  let total = 0
   let noticiasCompletas = []
-  // Lmneuquen Noticias Principales
-  $('.article-highlighted-md').each((index,el)=>{
-    total++
-    const rawLink = $(el).find('a').attr('href')
-    const datosNoticia = {
-      indice: total,
-      link:rawLink,
-    }
-    noticias.push(datosNoticia)
-  })
-
-  //Lmneuquen Noticias secundarias
-  $('.article-list-xl').each((index,el)=>{
-    total++
-    if(total >= cantidadMaxDeNoticias){return}
-    const rawLink =  $(el).find('a').attr('href')
-    const datosNoticia = {
-      indice: total,
-      link:rawLink,
-    }
-    noticias.push(datosNoticia)
-  })
-  // writeFile('json/lmneuquenList.json', JSON.stringify(noticias,null,2), (err) => {if (err) throw err})
-
-  for (let noticia of noticias){
-    const url = noticia.link
-    const pagina = await fetch(url)
-    const contenido = await pagina.text()
-    const $ = cheerio.load(contenido)
-    $('script').remove()
-    $('noscript').remove()
-    $('iframe').remove()
-    $('footer').remove()
-    $('.weather-widget').remove()
-    $('.widgetContent').remove()
-    $('.banner-wrapper').remove()
-    $('.it-may-interest-you-sm').remove()
-    $('.it-may-interest-you-xl').remove()
-    $('.col-12.col-lg-4').remove()
-    $('.note-themes').remove()
-    $('.read-more').remove()
-    $('.comments').remove()
-    $('.no-gutters').remove()
-    $('.article-theme').remove()
-    $('.embed_copyright').remove()
-    $('.embed_epigrafe').remove()
-    $('.modal').remove()
-    $('#fb-root').remove()
-    $('.section-horizontal-sm').remove()
-    $('.col.col-lg-auto').remove()
-    $('embed_cont.type_imagen').remove()
-    $('main').each((index,el)=>{
-      // web += $(el).html()
-      const rawTitular = $(el).find('.title').text()
-      const rawlink = url
-      const rawImagen = $(el).find('figure > img').attr('src')
-      const rawResumen = $(el).find('h2').text()
-      const rawArticulo = $(el).find('P').text()
-      const rawFecha = $(el).find('.grouper.date').attr('datetime')
-
-      const datosNoticia = {
-        indice: noticia.indice,
-        medio: 'Lmneuquen',
-        fechaObtenido: Math.floor(Date.now() / 1000),
-        fechaArticulo : rawFecha,
-        link:rawlink,
-        titular:rawTitular,
-        resumen:rawResumen,
-        articulo:rawArticulo,
-        imagen:rawImagen,
+  try {
+    const pagina = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       }
-
-      noticiasCompletas.push(datosNoticia)
     })
+    const content = await pagina.text()
+    const $ = cheerio.load(content)
+
+    const articles = $('article, .article-highlighted-md, .article-list-xl')
+    console.log(`[Lmneuquen] Artículos encontrados en portada: ${articles.length}`)
+
+    articles.each((index, el) => {
+      if (noticias.length >= cantidadMaxDeNoticias) return
+      const href = $(el).find('a').attr('href')
+      if (href) {
+        const fullLink = href.startsWith('http') ? href : url + href
+        if (!noticias.find(n => n.link === fullLink)) {
+          noticias.push({ indice: noticias.length + 1, link: fullLink })
+        }
+      }
+    })
+
+    for (let noticia of noticias) {
+      try {
+        const resp = await fetch(noticia.link, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+          }
+        })
+        const html = await resp.text()
+        const $n = cheerio.load(html)
+
+        const rawTitular = $n('h1.title').text().trim() || $n('h1').text().trim()
+        const rawResumen = $n('h2.subtitle').text().trim() || $n('h2').text().trim()
+        const rawImagen = $n('meta[property="og:image"]').attr('content') || $n('.main-image img').attr('src')
+        const rawArticulo = $n('.article-body p').text().trim() || $n('main p').text().trim()
+        const rawFecha = $n('.date').text().trim() || $n('.grouper.date').attr('datetime')
+
+        if (rawTitular) {
+          noticiasCompletas.push({
+            indice: noticia.indice,
+            medio: 'Lmneuquen',
+            fechaObtenido: Math.floor(Date.now() / 1000),
+            fechaArticulo: rawFecha,
+            link: noticia.link,
+            titular: rawTitular,
+            resumen: rawResumen,
+            articulo: rawArticulo,
+            imagen: rawImagen,
+          })
+        }
+      } catch (e) {
+        console.error(`Error en noticia Lmneuquen: ${noticia.link}`, e.message)
+      }
+    }
+    await writeFile('./public/json/lmneuquen.json', JSON.stringify(noticiasCompletas, null, 2))
+  } catch (e) {
+    console.error("Error en Lmneuquen Scrap:", e.message)
   }
-  writeFile('json/lmneuquen.json', JSON.stringify(noticiasCompletas,null,2), (err) => {if (err) throw err})
 }
+
 export {lmneuquenScrap}

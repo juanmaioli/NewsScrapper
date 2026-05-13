@@ -2,90 +2,69 @@ import {writeFile} from 'node:fs/promises'
 import * as cheerio from 'cheerio'
 import * as puppeteer from 'puppeteer'
 
-
-async function OleScrap(cantidadMaxDeNoticias=2){
-  const url = 'https://www.ole.com.ar/'
-  const browser = await puppeteer.launch({headless: true,args: ['--no-sandbox', '--disable-setuid-sandbox']})
-  await browser.createIncognitoBrowserContext()
-  const page = await browser.newPage()
-  //Para evirar que se detecte el bot al usar {headless: true}
-  await page.setUserAgent('Mozilla/5.0 (Windows NT 5.1; rv:5.0) Gecko/20100101 Firefox/5.0')
-  await page.goto(url)
-  const content = await page.content()
-  const $ = cheerio.load(content)
-
+async function oleScrap(cantidadMaxDeNoticias=2){
+  const url = 'https://www.ole.com.ar'
   let noticias = []
   let noticiasCompletas = []
-  let total = 0
+  const browser = await puppeteer.launch({headless: "new", args: ['--no-sandbox', '--disable-setuid-sandbox']})
+  try {
+    const page = await browser.newPage()
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+    await page.goto(url, { waitUntil: 'networkidle2' })
+    
+    // Scrollear para cargar contenido
+    await page.evaluate(() => window.scrollBy(0, 1000))
+    await new Promise(r => setTimeout(r, 2000))
 
+    const allLinks = await page.evaluate(() => Array.from(document.querySelectorAll('a')).map(a => a.href))
+    
+    // Filtrar links que parecen noticias (Olé suele usar .html al final)
+    const newsLinks = [...new Set(allLinks.filter(link => link.startsWith(url) && link.endsWith('.html') && !link.includes('/edicion-impresa/')))]
+    console.log(`[Olé] Enlaces de noticias detectados: ${newsLinks.length}`)
 
-  //Ole Noticias
-  $('.dmpSds').each((index,el)=>{
-    total++
-    if(total >= cantidadMaxDeNoticias){return}
-    const rawlink = $(el).find('a').attr('href')
-    const datosNoticia = {
-      indice: total,
-      link:rawlink,
+    for (let i = 0; i < Math.min(newsLinks.length, cantidadMaxDeNoticias); i++) {
+      noticias.push({ indice: i + 1, link: newsLinks[i] })
     }
-    if(rawlink){
-      if(rawlink.includes('undefined') == false){
-        noticias.push(datosNoticia)
+
+    for (let noticia of noticias) {
+      try {
+        const resp = await fetch(noticia.link, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+          }
+        })
+        const html = await resp.text()
+        const $n = cheerio.load(html)
+
+        const rawTitular = $n('h1').first().text().trim()
+        const rawResumen = $n('.story-summary, .subtitle').text().trim()
+        const rawImagen = $n('meta[property="og:image"]').attr('content') || $n('article img').attr('src')
+        const rawArticulo = $n('article p, .body-nota p').text().trim()
+        const rawFecha = $n('time').attr('datetime') || $n('.date').text().trim() || new Date().toISOString()
+
+        if (rawTitular) {
+          noticiasCompletas.push({
+            indice: noticia.indice,
+            medio: 'Olé',
+            fechaObtenido: Math.floor(Date.now() / 1000),
+            fechaArticulo: rawFecha,
+            link: noticia.link,
+            titular: rawTitular,
+            resumen: rawResumen,
+            articulo: rawArticulo,
+            imagen: rawImagen,
+          })
+        }
+      } catch (e) {
+        console.error(`Error en noticia Olé: ${noticia.link}`, e.message)
       }
     }
-  })
-
-  // writeFile('json/oleList.json', JSON.stringify(noticias,null,2), (err) => {if (err) throw err})
-
-  for (let noticia of noticias){
-    const url = noticia.link
-    // console.log(noticia.indice , ') Obteniendo: ',  url)
-    const pagina = await fetch(url)
-    const contenido = await pagina.text()
-    const $ = cheerio.load(contenido)
-    $('ul').remove()
-    $('header').remove()
-    $('svg').remove()
-    $('script').remove()
-    $('.sc-489cef11-0').remove()
-    $('.sc-6964e9bc-0').remove()
-    $('.back').remove()
-    $('.title-comments').remove()
-    $('.bann').remove()
-    $('.video').remove()
-    $('#wb_meter').remove()
-    $('footer').remove()
-
-    const rawFecha = $('.modificatedDate').text()
-    $('body').each((index,el)=>{
-      const rawTitular = $(el).find('.sc-6d5ed123-3').html()
-      const rawlink = url
-      const rawImagen = $(el).find('picture > img').attr('src')
-      const rawResumen =  $(el).find('.sc-789c2df9-7').html()
-      const rawArticulo = $(el).find('p').text()
-
-      const datosNoticia = {
-        indice: noticia.indice,
-        medio: 'Olé',
-        fechaObtenido: Math.floor(Date.now() / 1000),
-        fechaArticulo : rawFecha,
-        link:rawlink,
-        titular:rawTitular,
-        resumen:rawResumen,
-        articulo:rawArticulo,
-        imagen:rawImagen,
-      }
-
-      noticiasCompletas.push(datosNoticia)
-    })
-    writeFile('json/ole.json',JSON.stringify(noticiasCompletas,null,2), (err) => {if (err) throw err})
-    setTimeout(() => {
-      browser.close()
-    }, 2000)
-    // let noticias = []
-    // let total = 0
-
+    await writeFile('./public/json/ole.json', JSON.stringify(noticiasCompletas, null, 2))
+  } catch (e) {
+    console.error("Error en Olé Scrap:", e.message)
+  } finally {
+    await browser.close()
   }
-
 }
-export{OleScrap}
+
+export {oleScrap}

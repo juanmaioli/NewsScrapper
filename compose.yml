@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    container_name: newsscrapper-app
+    ports:
+      - "8053:8053"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    volumes:
+      - ./cache.db:/app/cache.db
+      - ./public/json:/app/public/json
+      - ./ssl:/app/ssl
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - PORT=8053

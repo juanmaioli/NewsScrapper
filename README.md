@@ -14,7 +14,8 @@
 - 🗄️ **Caché Inteligente (SQLite):** Implementación de un sistema de caché con **TTL de 30 minutos**. Ahorra recursos y evita el scraping redundante.
 - ⚡ **Arquitectura Asíncrona:** El proceso de recolección de datos se ejecuta en segundo plano, garantizando una navegación fluida.
 - 📱 **Interfaz Premium:** Visualizador web basado en **Bootstrap 5.3** con soporte nativo para **Modo Oscuro** y diseño 100% responsive.
-- 🔒 **Seguridad de Grado Bancario:** Soporte para **HTTPS (SSL)** y aislamiento de archivos sensibles del sistema.
+- 🐳 **Optimización para Docker:** Imagen multi-etapa ultra-ligera, ejecución como usuario no privilegiado y compatibilidad total con Puppeteer/Chromium en Alpine.
+- 🔒 **Seguridad de Grado Bancario:** Soporte para **HTTPS (SSL)**, aislamiento de archivos sensibles y ejecución en entornos aislados.
 - 🇦🇷 **Cobertura Federal:** Scraping optimizado para Infobae, La Nación, El Cronista, Google News, LMN, Río Negro, Perfil, CNN y más.
 
 ---
@@ -23,6 +24,7 @@
 
 Sigue estos pasos para poner en marcha tu propia instancia de NewsScrapper:
 
+### Opción 1: Ejecución Local
 1. **Clonar el repositorio:**
    ```bash
    git clone https://github.com/juanmaioli/NewsScrapper.git
@@ -35,6 +37,14 @@ Sigue estos pasos para poner en marcha tu propia instancia de NewsScrapper:
    ```bash
    npm start
    ```
+
+### Opción 2: Docker (Recomendado) 🐳
+Si preferís usar Docker para una experiencia más aislada y segura, simplemente ejecutá:
+
+```bash
+docker compose up -d --build
+```
+Esto levantará el servicio en el puerto **8053**, configurando automáticamente el entorno de Puppeteer y Chromium sin que tengas que instalar nada más en tu sistema.
 
 ---
 

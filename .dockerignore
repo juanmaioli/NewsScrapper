@@ -1,0 +1,13 @@
+# Ignorar carpetas pesadas y datos locales
+node_modules
+.git
+.dev
+cache.db
+
+# Ignorar archivos de infraestructura propios de Docker
+Dockerfile
+compose.yml
+.dockerignore
+
+# Mantener package.json, pnpm-lock.yaml y .npmrc para la construcción
+# NO incluirlos aquí para que el Dockerfile pueda verlos

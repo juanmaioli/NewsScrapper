@@ -6,6 +6,9 @@ RUN apk add --no-cache python3 make g++ build-base
 
 RUN corepack enable && corepack prepare pnpm@11 --activate
 
+# Autorizar específicamente las dependencias que necesitan compilar módulos nativos
+ENV PNPM_ONLY_BUILT_DEPENDENCIES=better-sqlite3,puppeteer
+
 WORKDIR /app
 
 # Copiar archivos de dependencias

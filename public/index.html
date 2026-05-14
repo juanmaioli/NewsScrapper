@@ -257,11 +257,16 @@
           return
         }
 
+        // Guardar las noticias globalmente para que la función de lectura pueda acceder a ellas
+        window.currentNews = ultimasNoticias;
+
         let htmlContent = ''
-        for(let noticia of ultimasNoticias){
+        for(let i = 0; i < ultimasNoticias.length; i++){
+          const noticia = ultimasNoticias[i];
           let imagenNoticia = ''
           const botones = `
             <div class="d-flex gap-1 justify-content-end">
+              <button onclick="leerNoticia(${i})" class="btn btn-outline-warning btn-sm" title="Escuchar noticia">🔊</button>
               <a href='${noticia.link}' class="btn btn-outline-primary btn-sm" target="_blank">Ver</a>
               <a href='https://www.google.com/search?q=${encodeURIComponent(noticia.titular)}' class="btn btn-outline-info btn-sm" target="_blank">Buscar</a>
             </div>`
@@ -277,11 +282,11 @@
               <div class="card">
                 <div class="card-header">
                   <div class="row align-items-center">
-                    <div class="col-7">
+                    <div class="col-6">
                       <h5 class="mb-0 small">${noticia.medio}</h5>
                       <span class="fst-italic smaller text-muted">${noticia.fechaArticulo || 'Sin fecha'}</span>
                     </div>
-                    <div class="col-5">
+                    <div class="col-6 p-0">
                       ${botones}
                     </div>
                   </div>
@@ -304,6 +309,56 @@
             </div>`
         }
         noticiasContainer.innerHTML = htmlContent
+      }
+
+      function leerNoticia(index) {
+        if (!window.currentNews || !window.currentNews[index]) return;
+        
+        const noticia = window.currentNews[index];
+
+        // Si se hace clic en el mismo botón mientras habla, detenerlo
+        if (window.speechSynthesis.speaking && window.lastReadIndex === index) {
+          window.speechSynthesis.cancel();
+          window.lastReadIndex = null;
+          return;
+        }
+
+        // Detener cualquier lectura previa
+        window.speechSynthesis.cancel();
+        
+        const textoCompleto = `${noticia.titular}. ${noticia.resumen || ''}. ${noticia.articulo}`;
+        
+        // Dividimos el texto en fragmentos (sentencias) para que empiece a leer casi al instante
+        // y para evitar que el buffer del navegador se bloquee con textos muy largos.
+        const chunks = textoCompleto.split(/[\.\!\?\n]+/).filter(t => t.trim().length > 0);
+        
+        window.lastReadIndex = index;
+        let chunkIndex = 0;
+
+        function hablarSiguienteChunk() {
+          if (chunkIndex >= chunks.length || window.lastReadIndex !== index) return;
+
+          const utterance = new SpeechSynthesisUtterance(chunks[chunkIndex].trim());
+          utterance.lang = 'es-AR';
+          utterance.rate = 1.1; // Un toque más rápido para mayor fluidez
+          
+          utterance.onend = () => {
+            chunkIndex++;
+            hablarSiguienteChunk();
+          };
+
+          utterance.onerror = (e) => {
+            console.error('Error en TTS:', e);
+            // Intentamos seguir con el siguiente a pesar del error
+            chunkIndex++;
+            hablarSiguienteChunk();
+          };
+
+          window.speechSynthesis.speak(utterance);
+        }
+
+        // Un pequeño retraso de 100ms después del cancel() ayuda a que la API se resetee correctamente
+        setTimeout(hablarSiguienteChunk, 100);
       }
 
       function toggleTheme(checkbox) {

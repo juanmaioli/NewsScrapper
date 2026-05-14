@@ -4,7 +4,7 @@ FROM node:20-alpine AS builder
 # Instalar herramientas para módulos nativos (better-sqlite3)
 RUN apk add --no-cache python3 make g++ build-base
 
-RUN corepack enable && corepack prepare pnpm@9 --activate
+RUN corepack enable && corepack prepare pnpm@11 --activate
 
 WORKDIR /app
 

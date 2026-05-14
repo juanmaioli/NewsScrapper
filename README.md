@@ -11,7 +11,7 @@
 ## ✨ Características Destacadas
 
 - 🕷️ **Scraping On-Demand:** Actualización dinámica de noticias en tiempo real al cambiar de medio en la interfaz web.
-- 🔊 **Lectura en Voz Alta (TTS):** Escucha las noticias directamente desde la web con síntesis de voz optimizada y fluida.
+- 🔊 **Lectura Inmersiva (TTS):** Escucha noticias en un modal a pantalla completa con cierre automático y sincronización inteligente de audio.
 - 🗄️ **Caché Inteligente (SQLite):** Implementación de un sistema de caché con **TTL de 30 minutos**. Ahorra recursos y evita el scraping redundante.
 - ⚡ **Arquitectura Asíncrona:** El proceso de recolección de datos se ejecuta en segundo plano, garantizando una navegación fluida.
 - 📱 **Interfaz Premium:** Visualizador web basado en **Bootstrap 5.3** con soporte nativo para **Modo Oscuro** y diseño 100% responsive.

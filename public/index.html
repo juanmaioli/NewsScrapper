@@ -199,6 +199,34 @@
 
     <div id="noticias" class="row"></div>
 
+    <!-- Modal de Lectura Fullscreen -->
+    <div class="modal fade" id="modalLectura" tabindex="-1" aria-labelledby="modalLecturaLabel" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content" style="background-color: var(--bg-color); color: var(--text-color);">
+          <div class="modal-header border-bottom-0">
+            <h5 class="modal-title" id="modalLecturaLabel">Escuchando Noticia</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="btnCerrarModal"></button>
+          </div>
+          <div class="modal-body text-center p-5">
+            <div class="container" style="max-width: 800px;">
+              <h1 id="modalTitular" class="display-4 mb-4 fw-bold"></h1>
+              <div id="modalImagenContainer" class="mb-4"></div>
+              <p id="modalResumen" class="lead mb-4 opacity-75 italic"></p>
+              <hr class="my-5 opacity-25">
+              <div id="modalCuerpo" class="fs-4 text-start" style="line-height: 1.6;"></div>
+              
+              <div class="mt-5 pt-5">
+                <div class="spinner-grow text-warning" role="status">
+                  <span class="visually-hidden">Leyendo...</span>
+                </div>
+                <p class="mt-2 text-warning fw-bold">Reproduciendo audio...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bootstrap JS-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -315,32 +343,57 @@
         if (!window.currentNews || !window.currentNews[index]) return;
         
         const noticia = window.currentNews[index];
+        const modalEl = document.getElementById('modalLectura');
+        const bsModal = new bootstrap.Modal(modalEl);
+        const btnCerrar = document.getElementById('btnCerrarModal');
 
-        // Si se hace clic en el mismo botón mientras habla, detenerlo
-        if (window.speechSynthesis.speaking && window.lastReadIndex === index) {
-          window.speechSynthesis.cancel();
-          window.lastReadIndex = null;
-          return;
-        }
+        // Configurar contenido del modal
+        document.getElementById('modalTitular').innerText = noticia.titular;
+        document.getElementById('modalResumen').innerText = noticia.resumen || '';
+        document.getElementById('modalCuerpo').innerText = noticia.articulo;
+        const imgContainer = document.getElementById('modalImagenContainer');
+        imgContainer.innerHTML = noticia.imagen 
+          ? `<img src="${noticia.imagen}" class="img-fluid rounded shadow-lg" style="max-height: 400px;" onerror="this.src='./img/No-Image-Placeholder.svg'">`
+          : '';
+
+        // Ajustar botón de cierre según el tema
+        const isDark = document.body.getAttribute('data-theme') === 'dark';
+        btnCerrar.className = isDark ? 'btn-close btn-close-white' : 'btn-close';
 
         // Detener cualquier lectura previa
         window.speechSynthesis.cancel();
         
         const textoCompleto = `${noticia.titular}. ${noticia.resumen || ''}. ${noticia.articulo}`;
-        
-        // Dividimos el texto en fragmentos (sentencias) para que empiece a leer casi al instante
-        // y para evitar que el buffer del navegador se bloquee con textos muy largos.
         const chunks = textoCompleto.split(/[\.\!\?\n]+/).filter(t => t.trim().length > 0);
         
         window.lastReadIndex = index;
         let chunkIndex = 0;
+        let manualClose = false;
+
+        // Mostrar el modal
+        bsModal.show();
+
+        // Si el usuario cierra el modal manualmente, detenemos la voz
+        modalEl.addEventListener('hidden.bs.modal', function handler() {
+          window.speechSynthesis.cancel();
+          window.lastReadIndex = null;
+          manualClose = true;
+          modalEl.removeEventListener('hidden.bs.modal', handler);
+        });
 
         function hablarSiguienteChunk() {
-          if (chunkIndex >= chunks.length || window.lastReadIndex !== index) return;
+          if (manualClose || chunkIndex >= chunks.length || window.lastReadIndex !== index) {
+            if (!manualClose && chunkIndex >= chunks.length) {
+              // Si terminó de leer todo, cerramos el modal automáticamente
+              const currentModal = bootstrap.Modal.getInstance(modalEl);
+              if (currentModal) currentModal.hide();
+            }
+            return;
+          }
 
           const utterance = new SpeechSynthesisUtterance(chunks[chunkIndex].trim());
           utterance.lang = 'es-AR';
-          utterance.rate = 1.1; // Un toque más rápido para mayor fluidez
+          utterance.rate = 1.1;
           
           utterance.onend = () => {
             chunkIndex++;
@@ -349,7 +402,6 @@
 
           utterance.onerror = (e) => {
             console.error('Error en TTS:', e);
-            // Intentamos seguir con el siguiente a pesar del error
             chunkIndex++;
             hablarSiguienteChunk();
           };
@@ -357,7 +409,6 @@
           window.speechSynthesis.speak(utterance);
         }
 
-        // Un pequeño retraso de 100ms después del cancel() ayuda a que la API se resetee correctamente
         setTimeout(hablarSiguienteChunk, 100);
       }
 

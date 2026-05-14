@@ -4,24 +4,16 @@ FROM node:22-alpine AS builder
 # Instalar herramientas para módulos nativos (better-sqlite3)
 RUN apk add --no-cache python3 make g++ build-base
 
-RUN corepack enable && corepack prepare pnpm@11 --activate
-
-# Autorizar específicamente las dependencias que necesitan compilar módulos nativos
-ENV PNPM_ONLY_BUILT_DEPENDENCIES=better-sqlite3,puppeteer
-
 WORKDIR /app
 
-# Copiar archivos de dependencias
-COPY package.json pnpm-lock.yaml* .npmrc* ./
+# Copiar archivos de dependencias (solo los de npm)
+COPY package.json ./
 
-# Instalar TODAS las dependencias (incluyendo las necesarias para compilar)
-RUN pnpm install --frozen-lockfile
+# Instalar dependencias con npm (maneja mejor la compilación nativa en Docker)
+RUN npm install
 
 # Copiar código fuente
 COPY . .
-
-# Eliminar dependencias de desarrollo y limpiar caché
-RUN pnpm prune --prod
 
 # 2. ETAPA DE PRODUCCIÓN (FINAL)
 FROM node:22-alpine
@@ -57,5 +49,5 @@ USER node
 
 EXPOSE 8053
 
-# Ejecutar node directamente (más ligero que pnpm en producción)
+# Ejecutar node directamente
 CMD ["node", "server.js"]

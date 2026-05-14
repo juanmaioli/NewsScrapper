@@ -6,7 +6,7 @@ async function cronistaScrap(cantidadMaxDeNoticias=2){
   const url = 'https://www.cronista.com'
   let noticias = []
   let noticiasCompletas = []
-  const browser = await puppeteer.launch({headless: true, executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null, args: ['--no-sandbox', '--disable-setuid-sandbox']})
+  const browser = await puppeteer.launch({headless: "new", executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null, args: ['--no-sandbox', '--disable-setuid-sandbox']})
   try {
     const page = await browser.newPage()
     await page.goto(url, { waitUntil: 'networkidle2' })

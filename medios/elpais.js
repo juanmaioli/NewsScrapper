@@ -7,7 +7,7 @@ async function elpaisScrap(cantidadMaxDeNoticias=20){
   const domain = 'https://elpais.com'
   let noticias = []
   let noticiasCompletas = []
-  const browser = await puppeteer.launch({headless: true, executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null, args: ['--no-sandbox', '--disable-setuid-sandbox']})
+  const browser = await puppeteer.launch({headless: "new", executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null, args: ['--no-sandbox', '--disable-setuid-sandbox']})
   try {
     const page = await browser.newPage()
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')

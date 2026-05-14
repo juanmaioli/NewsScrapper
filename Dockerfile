@@ -1,5 +1,5 @@
 # 1. ETAPA DE CONSTRUCCIÓN (BUILD)
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 # Instalar herramientas para módulos nativos (better-sqlite3)
 RUN apk add --no-cache python3 make g++ build-base
@@ -21,7 +21,7 @@ COPY . .
 RUN pnpm prune --prod
 
 # 2. ETAPA DE PRODUCCIÓN (FINAL)
-FROM node:20-alpine
+FROM node:22-alpine
 
 # Instalar Chromium y dependencias mínimas para Puppeteer en Alpine
 RUN apk add --no-cache \

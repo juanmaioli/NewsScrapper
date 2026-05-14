@@ -12,7 +12,7 @@ ENV PNPM_ONLY_BUILT_DEPENDENCIES=better-sqlite3,puppeteer
 WORKDIR /app
 
 # Copiar archivos de dependencias
-COPY package.json pnpm-lock.yaml* ./
+COPY package.json pnpm-lock.yaml* .npmrc* ./
 
 # Instalar TODAS las dependencias (incluyendo las necesarias para compilar)
 RUN pnpm install --frozen-lockfile

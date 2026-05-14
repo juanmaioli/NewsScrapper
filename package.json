@@ -19,5 +19,11 @@
     "file-type": "^18.2.0",
     "got": "^12.5.3",
     "puppeteer": "^19.5.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "puppeteer"
+    ]
   }
 }

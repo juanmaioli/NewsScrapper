@@ -210,7 +210,7 @@
     </div>
 
     <!-- Panel de Configuración de Voz -->
-    <div class="row mb-5 mt-4 justify-content-center align-items-center opacity-75" style="transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.75'">
+    <div class="row mt-1 justify-content-center align-items-center opacity-75" style="transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.75'">
       <div class="col-md-4">
         <div class="input-group input-group-sm">
           <span class="input-group-text border-0 bg-transparent">🎙️ Voz</span>
@@ -220,14 +220,14 @@
       <div class="col-md-2">
         <div class="d-flex align-items-center gap-2">
           <small class="text-nowrap">⏩ Vel:</small>
-          <input type="range" id="rateRange" class="form-range" min="0.5" max="2" step="0.1" value="1.1">
+          <input type="range" id="rateRange" class="form-range" min="0.5" max="2" step="0.1" value="1.2">
           <small id="rateValue" class="fw-bold">1.1</small>
         </div>
       </div>
       <div class="col-md-2">
         <div class="d-flex align-items-center gap-2">
           <small class="text-nowrap">🎵 Tono:</small>
-          <input type="range" id="pitchRange" class="form-range" min="0.5" max="2" step="0.1" value="1">
+          <input type="range" id="pitchRange" class="form-range" min="0.5" max="2" step="0.1" value="1.2">
           <small id="pitchValue" class="fw-bold">1.0</small>
         </div>
       </div>
@@ -300,7 +300,7 @@
           option.textContent = `${voice.name} (${voice.lang})`;
           option.value = voice.name;
           // Intentar preseleccionar Argentina o la primera en español
-          if (voice.lang === 'es-AR') option.selected = true;
+          if (voice.lang === 'es-US') option.selected = true;
           voiceSelect.appendChild(option);
         });
 

@@ -16,6 +16,11 @@ import { oleScrap } from './medios/ole.js';
 import { cnnespanolScrap } from './medios/cnnespanol.js';
 import { elpaisScrap } from './medios/elpais.js';
 import { googlenewsScrap } from './medios/googlenews.js';
+import { prontoScrap } from './medios/pronto.js';
+import { paparazziScrap } from './medios/paparazzi.js';
+import { genteScrap } from './medios/gente.js';
+import { carasScrap } from './medios/caras.js';
+import { tnScrap } from './medios/tn.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,7 +48,12 @@ const scraperMap = {
   'ole.json': { name: 'Olé', fn: oleScrap },
   'cnnespanol.json': { name: 'CNN en Español', fn: cnnespanolScrap },
   'elpais.json': { name: 'El País', fn: elpaisScrap },
-  'googlenews.json': { name: 'Google News', fn: googlenewsScrap }
+  'googlenews.json': { name: 'Google News', fn: googlenewsScrap },
+  'pronto.json': { name: 'Pronto', fn: prontoScrap },
+  'paparazzi.json': { name: 'Paparazzi', fn: paparazziScrap },
+  'gente.json': { name: 'Revista Gente', fn: genteScrap },
+  'caras.json': { name: 'Revista Caras', fn: carasScrap },
+  'tn.json': { name: 'TN', fn: tnScrap }
 };
 
 // Estado de scraping activo

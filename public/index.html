@@ -141,6 +141,23 @@
         background-color: var(--card-bg);
         color: var(--text-color);
       }
+
+      /* Resaltado de TTS */
+      .tts-chunk {
+        transition: background-color 0.2s, color 0.2s;
+        padding: 1px 2px;
+        border-radius: 4px;
+        cursor: default;
+      }
+      .tts-active {
+        background-color: rgba(255, 193, 7, 0.45);
+        color: #fff;
+        box-shadow: 0 0 8px rgba(255, 193, 7, 0.3);
+      }
+      [data-theme="light"] .tts-active {
+        background-color: rgba(255, 193, 7, 0.6);
+        color: #000;
+      }
     </style>
   </head>
   <body class="container-fluid" data-theme="dark">
@@ -179,12 +196,44 @@
             <option value="lanacion.json">🏛️ La Nacion</option>
             <option value="lmneuquen.json">🏔️ Lmneuquen</option>
             <option value="ole.json">⚽ Olé</option>
+            <option value="paparazzi.json">📸 Paparazzi</option>
             <option value="perfil.json">🖋️ Perfil</option>
+            <option value="pronto.json">💎 Pronto</option>
+            <option value="gente.json">✨ Revista Gente</option>
+            <option value="caras.json">💎 Revista Caras</option>
+            <option value="tn.json">📺 TN (Todo Noticias)</option>
             <option value="rionegro.json">🍎 Río Negro</option>
           </select>
         </div>
       </div>
-            <div class="col-md-3"></div>
+      <div class="col-md-3"></div>
+    </div>
+
+    <!-- Panel de Configuración de Voz -->
+    <div class="row mb-5 mt-4 justify-content-center align-items-center opacity-75" style="transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.75'">
+      <div class="col-md-4">
+        <div class="input-group input-group-sm">
+          <span class="input-group-text border-0 bg-transparent">🎙️ Voz</span>
+          <select id="voiceSelect" class="form-select border-0 bg-transparent fw-bold text-decoration-underline"></select>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="d-flex align-items-center gap-2">
+          <small class="text-nowrap">⏩ Vel:</small>
+          <input type="range" id="rateRange" class="form-range" min="0.5" max="2" step="0.1" value="1.1">
+          <small id="rateValue" class="fw-bold">1.1</small>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="d-flex align-items-center gap-2">
+          <small class="text-nowrap">🎵 Tono:</small>
+          <input type="range" id="pitchRange" class="form-range" min="0.5" max="2" step="0.1" value="1">
+          <small id="pitchValue" class="fw-bold">1.0</small>
+        </div>
+      </div>
+      <div class="col-md-1 text-center">
+        <button class="btn btn-sm btn-outline-warning border-0" onclick="probarVoz()" title="Probar voz">▶️ Escuchar</button>
+      </div>
     </div>
   </div>
 
@@ -231,6 +280,54 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+      // Variables globales para voces
+      let voices = [];
+      const voiceSelect = document.getElementById('voiceSelect');
+      const rateRange = document.getElementById('rateRange');
+      const pitchRange = document.getElementById('pitchRange');
+      const rateValue = document.getElementById('rateValue');
+      const pitchValue = document.getElementById('pitchValue');
+
+      function loadVoices() {
+        voices = window.speechSynthesis.getVoices();
+        voiceSelect.innerHTML = '';
+        
+        // Filtrar solo voces en español para que sea más fácil elegir
+        const spanishVoices = voices.filter(v => v.lang.startsWith('es'));
+        
+        spanishVoices.forEach((voice, i) => {
+          const option = document.createElement('option');
+          option.textContent = `${voice.name} (${voice.lang})`;
+          option.value = voice.name;
+          // Intentar preseleccionar Argentina o la primera en español
+          if (voice.lang === 'es-AR') option.selected = true;
+          voiceSelect.appendChild(option);
+        });
+
+        // Si no hay voces en español cargadas todavía (a veces tarda en Chrome), reintentar
+        if (spanishVoices.length === 0) {
+          setTimeout(loadVoices, 100);
+        }
+      }
+
+      // Eventos para actualizar etiquetas de rango
+      rateRange.oninput = () => rateValue.innerText = rateRange.value;
+      pitchRange.oninput = () => pitchValue.innerText = pitchRange.value;
+
+      // Cargar voces cuando cambien o al inicio
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+      loadVoices();
+
+      function probarVoz() {
+        window.speechSynthesis.cancel();
+        const testUtterance = new SpeechSynthesisUtterance("Probando la configuración de voz en News Scrapper.");
+        const selectedVoice = voices.find(v => v.name === voiceSelect.value);
+        if (selectedVoice) testUtterance.voice = selectedVoice;
+        testUtterance.rate = rateRange.value;
+        testUtterance.pitch = pitchRange.value;
+        window.speechSynthesis.speak(testUtterance);
+      }
+
       // Carga inicial
       actualizarYMostrar(document.getElementById('medios').value)
 
@@ -347,10 +444,17 @@
         const bsModal = new bootstrap.Modal(modalEl);
         const btnCerrar = document.getElementById('btnCerrarModal');
 
-        // Configurar contenido del modal
-        document.getElementById('modalTitular').innerText = noticia.titular;
-        document.getElementById('modalResumen').innerText = noticia.resumen || '';
-        document.getElementById('modalCuerpo').innerText = noticia.articulo;
+        // Contenedores
+        const containers = {
+          titular: document.getElementById('modalTitular'),
+          resumen: document.getElementById('modalResumen'),
+          cuerpo: document.getElementById('modalCuerpo')
+        };
+
+        // Limpiar contenedores
+        Object.values(containers).forEach(c => c.innerHTML = '');
+        
+        // Imagen
         const imgContainer = document.getElementById('modalImagenContainer');
         imgContainer.innerHTML = noticia.imagen 
           ? `<img src="${noticia.imagen}" class="img-fluid rounded shadow-lg" style="max-height: 400px;" onerror="this.src='./img/No-Image-Placeholder.svg'">`
@@ -360,11 +464,34 @@
         const isDark = document.body.getAttribute('data-theme') === 'dark';
         btnCerrar.className = isDark ? 'btn-close btn-close-white' : 'btn-close';
 
+        // Preparar fragmentos y Spans
+        const audioChunks = [];
+        const allSpans = [];
+
+        function addTextToModal(text, container) {
+          if (!text) return;
+          // Dividir por puntos, exclamaciones, interrogaciones o saltos de línea, manteniendo el delimitador
+          const sentences = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
+          
+          sentences.forEach(s => {
+            const cleanText = s.trim();
+            if (cleanText.length > 0) {
+              const span = document.createElement('span');
+              span.className = 'tts-chunk';
+              span.innerText = s; // Mantenemos el espacio original si lo hay
+              container.appendChild(span);
+              allSpans.push(span);
+              audioChunks.push(cleanText);
+            }
+          });
+        }
+
+        addTextToModal(noticia.titular, containers.titular);
+        addTextToModal(noticia.resumen, containers.resumen);
+        addTextToModal(noticia.articulo, containers.cuerpo);
+
         // Detener cualquier lectura previa
         window.speechSynthesis.cancel();
-        
-        const textoCompleto = `${noticia.titular}. ${noticia.resumen || ''}. ${noticia.articulo}`;
-        const chunks = textoCompleto.split(/[\.\!\?\n]+/).filter(t => t.trim().length > 0);
         
         window.lastReadIndex = index;
         let chunkIndex = 0;
@@ -373,7 +500,7 @@
         // Mostrar el modal
         bsModal.show();
 
-        // Si el usuario cierra el modal manualmente, detenemos la voz
+        // Manejo de cierre manual
         modalEl.addEventListener('hidden.bs.modal', function handler() {
           window.speechSynthesis.cancel();
           window.lastReadIndex = null;
@@ -382,18 +509,31 @@
         });
 
         function hablarSiguienteChunk() {
-          if (manualClose || chunkIndex >= chunks.length || window.lastReadIndex !== index) {
-            if (!manualClose && chunkIndex >= chunks.length) {
-              // Si terminó de leer todo, cerramos el modal automáticamente
+          if (manualClose || chunkIndex >= audioChunks.length || window.lastReadIndex !== index) {
+            if (!manualClose && chunkIndex >= audioChunks.length) {
               const currentModal = bootstrap.Modal.getInstance(modalEl);
-              if (currentModal) currentModal.hide();
+              if (currentModal) setTimeout(() => currentModal.hide(), 1000); // Pequeña pausa al final
             }
             return;
           }
 
-          const utterance = new SpeechSynthesisUtterance(chunks[chunkIndex].trim());
-          utterance.lang = 'es-AR';
-          utterance.rate = 1.1;
+          // Resaltado visual
+          allSpans.forEach(s => s.classList.remove('tts-active'));
+          const currentSpan = allSpans[chunkIndex];
+          currentSpan.classList.add('tts-active');
+
+          // Scroll suave hacia el texto activo si no es visible
+          currentSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+          const utterance = new SpeechSynthesisUtterance(audioChunks[chunkIndex]);
+          
+          // Aplicar configuración personalizada
+          const selectedVoiceName = document.getElementById('voiceSelect').value;
+          const selectedVoice = voices.find(v => v.name === selectedVoiceName);
+          if (selectedVoice) utterance.voice = selectedVoice;
+          
+          utterance.rate = document.getElementById('rateRange').value;
+          utterance.pitch = document.getElementById('pitchRange').value;
           
           utterance.onend = () => {
             chunkIndex++;
@@ -409,7 +549,7 @@
           window.speechSynthesis.speak(utterance);
         }
 
-        setTimeout(hablarSiguienteChunk, 100);
+        setTimeout(hablarSiguienteChunk, 150);
       }
 
       function toggleTheme(checkbox) {

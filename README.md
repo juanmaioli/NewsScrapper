@@ -10,9 +10,10 @@
 
 ## ✨ Características Destacadas
 
-- 🕷️ **Scraping On-Demand:** Actualización dinámica de noticias en tiempo real al cambiar de medio en la interfaz web.
-- 🔊 **Lectura Inmersiva (TTS):** Escucha noticias en un modal a pantalla completa con cierre automático y sincronización inteligente de audio.
-- 🗄️ **Caché Inteligente (SQLite):** Implementación de un sistema de caché con **TTL de 30 minutos**. Ahorra recursos y evita el scraping redundante.
+- 🕷️ **Scraping On-Demand:** Actualización dinámica de noticias en tiempo real para más de 15 medios nacionales e internacionales.
+- 🔊 **Lectura Inmersiva (TTS):** Escucha noticias en un modal a pantalla completa con resaltado tipo karaoke y cierre automático.
+- 🎙️ **Personalización de Voz:** Selector dinámico de voces, control de velocidad y tono directamente desde la interfaz principal.
+- 🗄️ **Caché Inteligente (SQLite):** Sistema de caché con **TTL de 30 minutos** para optimizar recursos.
 - ⚡ **Arquitectura Asíncrona:** El proceso de recolección de datos se ejecuta en segundo plano, garantizando una navegación fluida.
 - 📱 **Interfaz Premium:** Visualizador web basado en **Bootstrap 5.3** con soporte nativo para **Modo Oscuro** y diseño 100% responsive.
 - 🐳 **Optimización para Docker:** Imagen multi-etapa ultra-ligera, ejecución como usuario no privilegiado y compatibilidad total con Puppeteer/Chromium en Alpine.

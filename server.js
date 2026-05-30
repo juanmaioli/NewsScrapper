@@ -70,10 +70,13 @@ app.get('/api/scrap/:medio', (req, res) => {
     return res.status(404).json({ error: 'Medio no encontrado' });
   }
 
-  // Verificar Caché en SQLite
+  // Verificar Caché en SQLite y existencia física del archivo JSON
+  const jsonPath = path.join(__dirname, 'public', 'json', medioId);
+  const jsonExists = fs.existsSync(jsonPath) && fs.statSync(jsonPath).size > 10;
+
   const row = db.prepare('SELECT last_update FROM cache_status WHERE medio_id = ?').get(medioId);
   
-  if (row && (now - row.last_update) < (TTL_MINUTES * 60)) {
+  if (jsonExists && row && (now - row.last_update) < (TTL_MINUTES * 60)) {
     const timeRemaining = Math.ceil(((TTL_MINUTES * 60) - (now - row.last_update)) / 60);
     console.log(`ℹ️ [Cache] Datos frescos para ${scraper.name}. Faltan ${timeRemaining} min para el próximo scrap.`);
     return res.json({ 

@@ -62,6 +62,7 @@ async function oleScrap(cantidadMaxDeNoticias=2){
     await writeFile('./public/json/ole.json', JSON.stringify(noticiasCompletas, null, 2))
   } catch (e) {
     console.error("Error en Olé Scrap:", e.message)
+    throw e;
   } finally {
     await browser.close()
   }

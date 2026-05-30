@@ -67,6 +67,7 @@ async function genteScrap(cantidadMaxDeNoticias=20){
     await writeFile('./public/json/gente.json', JSON.stringify(noticiasCompletas, null, 2))
   } catch (e) {
     console.error("Error en Gente Scrap:", e.message)
+    throw e;
   }
 }
 

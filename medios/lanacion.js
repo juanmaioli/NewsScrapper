@@ -61,6 +61,7 @@ async function lanacionScrap(cantidadMaxDeNoticias=2){
     await writeFile('./public/json/lanacion.json', JSON.stringify(noticiasCompletas, null, 2))
   } catch (e) {
     console.error("Error en La Nacion Scrap:", e.message)
+    throw e;
   } finally {
     await browser.close()
   }

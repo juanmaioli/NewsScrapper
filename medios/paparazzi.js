@@ -69,6 +69,7 @@ async function paparazziScrap(cantidadMaxDeNoticias=20){
     await writeFile('./public/json/paparazzi.json', JSON.stringify(noticiasCompletas, null, 2))
   } catch (e) {
     console.error("Error en Paparazzi Scrap:", e.message)
+    throw e;
   }
 }
 

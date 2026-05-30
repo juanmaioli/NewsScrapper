@@ -73,6 +73,7 @@ async function elpaisScrap(cantidadMaxDeNoticias=20){
     await writeFile('./public/json/elpais.json', JSON.stringify(noticiasCompletas, null, 2))
   } catch (e) {
     console.error("Error en El País Scrap:", e.message)
+    throw e;
   } finally {
     await browser.close()
   }

@@ -64,6 +64,7 @@ async function lmneuquenScrap(cantidadMaxDeNoticias=2){
     await writeFile('./public/json/lmneuquen.json', JSON.stringify(noticiasCompletas, null, 2))
   } catch (e) {
     console.error("Error en Lmneuquen Scrap:", e.message)
+    throw e;
   }
 }
 

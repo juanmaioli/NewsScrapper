@@ -49,6 +49,7 @@ async function perfilScrap(cantidadMaxDeNoticias=2){
     await writeFile('./public/json/perfil.json', JSON.stringify(noticiasCompletas, null, 2))
   } catch (e) {
     console.error("Error en Perfil Scrap:", e.message)
+    throw e;
   }
 }
 

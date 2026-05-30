@@ -56,7 +56,7 @@
       }
       .card:hover { transform: translateY(-5px); }
       body{background-color: var(--bg-color); color: var(--text-color); font-family: 'Roboto', sans-serif; transition: background-color 0.3s, color 0.3s;}
-      
+
       #loader {
         display: none;
         text-align: center;
@@ -68,7 +68,7 @@
       }
       .hero-section {
         background: var(--hero-gradient);
-        padding: 60px 0;
+        padding: 40px 0;
         border-bottom: 1px solid #34495e;
         transition: background 0.3s;
       }
@@ -165,28 +165,42 @@
   <div class="hero-section text-center shadow mb-5">
     <div class="container position-relative">
       <h1 class="display-3 fw-bold mb-3">📰 News Scrapper</h1>
-      
-      <!-- Switch de Tema -->
-      <div class="theme-switch-wrapper mb-4">
-        <span class="emoji-toggle" onclick="setTheme('light')">☀️</span>
-        <label class="theme-switch" for="checkbox">
-          <input type="checkbox" id="checkbox" onchange="toggleTheme(this)" />
-          <div class="slider"></div>
-        </label>
-        <span class="emoji-toggle" onclick="setTheme('dark')">🌙</span>
+
+
+
+    <div class="row align-items-center justify-content-center">
+      <div class="col-md-8">
+        <!-- Panel de Configuración de Voz -->
+        <div class="row mt-1 justify-content-center align-items-center opacity-75" style="transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.75'">
+          <div class="col">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text border-0 bg-transparent">🎙️ Voz</span>
+              <select id="voiceSelect" class="form-select border-0 bg-transparent fw-bold text-decoration-underline"></select>
+            </div>
+          </div>
+          <div class="col">
+            <div class="d-flex align-items-center gap-2">
+              <small class="text-nowrap">⏩ Vel:</small>
+              <input type="range" id="rateRange" class="form-range" min="0.5" max="2" step="0.1" value="1.2">
+              <small id="rateValue" class="fw-bold">1.1</small>
+            </div>
+          </div>
+          <div class="col">
+            <div class="d-flex align-items-center gap-2">
+              <small class="text-nowrap">🎵 Tono:</small>
+              <input type="range" id="pitchRange" class="form-range" min="0.5" max="2" step="0.1" value="1.2">
+              <small id="pitchValue" class="fw-bold">1.0</small>
+            </div>
+          </div>
+          <div class="col text-center">
+            <button class="btn btn-sm btn-outline-warning border-0" onclick="probarVoz()" title="Probar voz">▶️ Escuchar</button>
+          </div>
+        </div>
       </div>
-    </div>
-    
-    <div class="row mt-2 mb-4 align-items-center justify-content-center">
-      <div class="col-md-3"></div>
-      <div class="col-md-3">
-        <p class="small opacity-75">Actualización automática al cambiar de medio</p>
-      </div>
-      <div class="col-md-3">
+
+      <div class="col-md-2">
         <div class="input-group shadow-lg">
-          <label class="input-group-text" for="medios">
-             🌐 Medio
-          </label>
+
           <select id="medios" class="form-select form-select-lg" onchange="actualizarYMostrar(this.value)">
             <option value="caras.json">💎 Caras</option>
             <option value="cnnespanol.json">🌎 CNN en Español</option>
@@ -206,37 +220,20 @@
           </select>
         </div>
       </div>
-      <div class="col-md-3"></div>
+      <div class="col-md-2">
+              <!-- Switch de Tema -->
+      <div class="theme-switch-wrapper mb-4">
+        <span class="emoji-toggle" onclick="setTheme('light')">☀️</span>
+        <label class="theme-switch" for="checkbox">
+          <input type="checkbox" id="checkbox" onchange="toggleTheme(this)" />
+          <div class="slider"></div>
+        </label>
+        <span class="emoji-toggle" onclick="setTheme('dark')">🌙</span>
+      </div>
     </div>
-
-    <!-- Panel de Configuración de Voz -->
-    <div class="row mt-1 justify-content-center align-items-center opacity-75" style="transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.75'">
-      <div class="col-md-4">
-        <div class="input-group input-group-sm">
-          <span class="input-group-text border-0 bg-transparent">🎙️ Voz</span>
-          <select id="voiceSelect" class="form-select border-0 bg-transparent fw-bold text-decoration-underline"></select>
-        </div>
-      </div>
-      <div class="col-md-2">
-        <div class="d-flex align-items-center gap-2">
-          <small class="text-nowrap">⏩ Vel:</small>
-          <input type="range" id="rateRange" class="form-range" min="0.5" max="2" step="0.1" value="1.2">
-          <small id="rateValue" class="fw-bold">1.1</small>
-        </div>
-      </div>
-      <div class="col-md-2">
-        <div class="d-flex align-items-center gap-2">
-          <small class="text-nowrap">🎵 Tono:</small>
-          <input type="range" id="pitchRange" class="form-range" min="0.5" max="2" step="0.1" value="1.2">
-          <small id="pitchValue" class="fw-bold">1.0</small>
-        </div>
-      </div>
-      <div class="col-md-1 text-center">
-        <button class="btn btn-sm btn-outline-warning border-0" onclick="probarVoz()" title="Probar voz">▶️ Escuchar</button>
       </div>
     </div>
   </div>
-
 
     <div id="loader">
       <div class="spinner-border text-primary" role="status">
@@ -263,7 +260,7 @@
               <p id="modalResumen" class="lead mb-4 opacity-75 italic"></p>
               <hr class="my-5 opacity-25">
               <div id="modalCuerpo" class="fs-4 text-start" style="line-height: 1.6;"></div>
-              
+
               <div class="mt-5 pt-5">
                 <div class="spinner-grow text-warning" role="status">
                   <span class="visually-hidden">Leyendo...</span>
@@ -291,10 +288,10 @@
       function loadVoices() {
         voices = window.speechSynthesis.getVoices();
         voiceSelect.innerHTML = '';
-        
+
         // Filtrar solo voces en español para que sea más fácil elegir
         const spanishVoices = voices.filter(v => v.lang.startsWith('es'));
-        
+
         spanishVoices.forEach((voice, i) => {
           const option = document.createElement('option');
           option.textContent = `${voice.name} (${voice.lang})`;
@@ -334,19 +331,19 @@
       async function actualizarYMostrar(medio) {
         const noticiasContainer = document.querySelector('#noticias')
         const loader = document.querySelector('#loader')
-        
+
         // 1. Mostrar loader y limpiar contenedor
         noticiasContainer.innerHTML = ''
         loader.style.display = 'block'
-        
+
         try {
           // 2. Disparar el scraping asíncrono en el servidor
           console.log('Solicitando actualización asíncrona para:', medio)
           const scrapResponse = await fetch(`/api/scrap/${medio}`)
           const scrapResult = await scrapResponse.json()
-          
+
           if (!scrapResponse.ok) throw new Error(scrapResult.error)
-          
+
           console.log('Servidor procesando:', scrapResult.message)
 
           // 3. Esperar solo si es una actualización nueva
@@ -357,7 +354,7 @@
           // 4. Intentar obtener los nuevos datos del JSON
           const dataResponse = await fetch(`./json/${medio}?t=${Date.now()}`) // Cache busting
           const ultimasNoticias = await dataResponse.json()
-          
+
           // 5. Renderizar
           renderizarNoticias(ultimasNoticias)
         } catch (error) {
@@ -376,7 +373,7 @@
       function renderizarNoticias(ultimasNoticias) {
         const noticiasContainer = document.querySelector('#noticias')
         const resultados = ultimasNoticias.length
-        
+
         if (resultados === 0) {
           noticiasContainer.innerHTML = '<div class="col-12 text-center mt-5"><h4>No se encontraron noticias recientes para este medio.</h4></div>'
           return
@@ -395,13 +392,13 @@
               <a href='${noticia.link}' class="btn btn-outline-primary btn-sm" target="_blank">Ver</a>
               <a href='https://www.google.com/search?q=${encodeURIComponent(noticia.titular)}' class="btn btn-outline-info btn-sm" target="_blank">Buscar</a>
             </div>`
-          
+
           if(noticia.imagen){
             imagenNoticia = `<div class="col"><img src="${noticia.imagen}" class="img-fluid rounded" alt="${noticia.titular}" onerror="this.src='./img/No-Image-Placeholder.svg'"></div>`
           } else {
             imagenNoticia = `<div class="col"><img src="./img/No-Image-Placeholder.svg" class="img-fluid rounded" alt="Sin imagen"></div>`
           }
-          
+
           htmlContent += `
             <div class="col-md-3 mb-4">
               <div class="card">
@@ -426,8 +423,8 @@
                 </div>
                 <div class="card-footer">
                   <div class="d-flex justify-content-between align-items-center">
-                    <span class="smaller text-muted">${noticia.indice} de ${resultados}</span>
-                    <span class="smaller text-muted">Visto: ${timeConverter(noticia.fechaObtenido)}</span>
+                    <span class="smaller">${noticia.indice} de ${resultados}</span>
+                    <span class="smaller">Visto: ${timeConverter(noticia.fechaObtenido)}</span>
                   </div>
                 </div>
               </div>
@@ -438,7 +435,7 @@
 
       function leerNoticia(index) {
         if (!window.currentNews || !window.currentNews[index]) return;
-        
+
         const noticia = window.currentNews[index];
         const modalEl = document.getElementById('modalLectura');
         const bsModal = new bootstrap.Modal(modalEl);
@@ -453,10 +450,10 @@
 
         // Limpiar contenedores
         Object.values(containers).forEach(c => c.innerHTML = '');
-        
+
         // Imagen
         const imgContainer = document.getElementById('modalImagenContainer');
-        imgContainer.innerHTML = noticia.imagen 
+        imgContainer.innerHTML = noticia.imagen
           ? `<img src="${noticia.imagen}" class="img-fluid rounded shadow-lg" style="max-height: 400px;" onerror="this.src='./img/No-Image-Placeholder.svg'">`
           : '';
 
@@ -472,7 +469,7 @@
           if (!text) return;
           // Dividir por puntos, exclamaciones, interrogaciones o saltos de línea, manteniendo el delimitador
           const sentences = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
-          
+
           sentences.forEach(s => {
             const cleanText = s.trim();
             if (cleanText.length > 0) {
@@ -492,7 +489,7 @@
 
         // Detener cualquier lectura previa
         window.speechSynthesis.cancel();
-        
+
         window.lastReadIndex = index;
         let chunkIndex = 0;
         let manualClose = false;
@@ -526,15 +523,15 @@
           currentSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
           const utterance = new SpeechSynthesisUtterance(audioChunks[chunkIndex]);
-          
+
           // Aplicar configuración personalizada
           const selectedVoiceName = document.getElementById('voiceSelect').value;
           const selectedVoice = voices.find(v => v.name === selectedVoiceName);
           if (selectedVoice) utterance.voice = selectedVoice;
-          
+
           utterance.rate = document.getElementById('rateRange').value;
           utterance.pitch = document.getElementById('pitchRange').value;
-          
+
           utterance.onend = () => {
             chunkIndex++;
             hablarSiguienteChunk();

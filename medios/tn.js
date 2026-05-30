@@ -68,6 +68,7 @@ async function tnScrap(cantidadMaxDeNoticias=20){
     await writeFile('./public/json/tn.json', JSON.stringify(noticiasCompletas, null, 2))
   } catch (e) {
     console.error("Error en TN Scrap:", e.message)
+    throw e;
   }
 }
 

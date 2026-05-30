@@ -68,6 +68,7 @@ async function prontoScrap(cantidadMaxDeNoticias=20){
     await writeFile('./public/json/pronto.json', JSON.stringify(noticiasCompletas, null, 2))
   } catch (e) {
     console.error("Error en Pronto Scrap:", e.message)
+    throw e;
   }
 }
 

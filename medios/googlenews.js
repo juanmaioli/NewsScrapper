@@ -64,6 +64,7 @@ async function googlenewsScrap(cantidadMaxDeNoticias=12){
     await writeFile('./public/json/googlenews.json', JSON.stringify(noticiasCompletas, null, 2))
   } catch (e) {
     console.error("Error en Google News Scrap:", e.message)
+    throw e;
   } finally {
     await browser.close()
   }

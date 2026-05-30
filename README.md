@@ -13,9 +13,9 @@
 - 🕷️ **Scraping On-Demand:** Actualización dinámica de noticias en tiempo real para más de 15 medios nacionales e internacionales.
 - 🔊 **Lectura Inmersiva (TTS):** Escucha noticias en un modal a pantalla completa con resaltado tipo karaoke y cierre automático.
 - 🎙️ **Personalización de Voz:** Selector dinámico de voces, control de velocidad y tono directamente desde la interfaz principal.
-- 🗄️ **Caché Inteligente (SQLite):** Sistema de caché con **TTL de 30 minutos** para optimizar recursos.
-- ⚡ **Arquitectura Asíncrona:** El proceso de recolección de datos se ejecuta en segundo plano, garantizando una navegación fluida.
-- 📱 **Interfaz Premium:** Visualizador web basado en **Bootstrap 5.3** con soporte nativo para **Modo Oscuro** y diseño 100% responsive.
+- 🗄️ **Caché Inteligente (SQLite & Doble Factor):** Sistema de caché con **TTL de 30 minutos** sincronizado con SQLite y reforzado mediante **verificación física de existencia y tamaño de archivos JSON** para asegurar datos siempre íntegros.
+- ⚡ **Arquitectura Asíncrona Robusta:** La ingesta de datos corre en segundo plano y cuenta con propagación estricta de errores asíncronos (`throw e`), evitando bloqueos en la interfaz y bloqueos falsos de caché ante fallas de scraping.
+- 📱 **Interfaz Premium Compacta:** Visualizador web basado en **Bootstrap 5.3** con soporte nativo de **Modo Oscuro**, optimización de contraste en footer de noticias, y un **panel de control horizontal unificado** de fácil lectura que integra volumen, selector de medios y tema en el header.
 - 🐳 **Optimización para Docker:** Imagen multi-etapa ultra-ligera, ejecución como usuario no privilegiado y compatibilidad total con Puppeteer/Chromium en Alpine.
 - 🔒 **Seguridad de Grado Bancario:** Soporte para **HTTPS (SSL)**, aislamiento de archivos sensibles y ejecución en entornos aislados.
 - 🇦🇷 **Cobertura Federal:** Scraping optimizado para Infobae, La Nación, El Cronista, Google News, LMN, Río Negro, Perfil, CNN y más.

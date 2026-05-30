@@ -67,6 +67,7 @@ async function carasScrap(cantidadMaxDeNoticias=20){
     await writeFile('./public/json/caras.json', JSON.stringify(noticiasCompletas, null, 2))
   } catch (e) {
     console.error("Error en Caras Scrap:", e.message)
+    throw e;
   }
 }
 

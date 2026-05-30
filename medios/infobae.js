@@ -62,6 +62,7 @@ async function infobaeScrap(cantidadMaxDeNoticias=2){
     await writeFile('./public/json/infobae.json', JSON.stringify(noticiasCompletas, null, 2))
   } catch (e) {
     console.error("Error en Infobae Scrap:", e.message)
+    throw e;
   } finally {
     await browser.close()
   }

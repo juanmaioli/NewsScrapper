@@ -56,6 +56,7 @@ async function cronistaScrap(cantidadMaxDeNoticias=2){
     await writeFile('./public/json/cronista.json', JSON.stringify(noticiasCompletas, null, 2))
   } catch (e) {
     console.error("Error en El Cronista Scrap:", e.message)
+    throw e;
   } finally {
     await browser.close()
   }

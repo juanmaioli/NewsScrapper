@@ -62,6 +62,7 @@ async function cnnespanolScrap(cantidadMaxDeNoticias=2){
     await writeFile('./public/json/cnnespanol.json', JSON.stringify(noticiasCompletas, null, 2))
   } catch (e) {
     console.error("Error en CNN en Español Scrap:", e.message)
+    throw e;
   } finally {
     await browser.close()
   }

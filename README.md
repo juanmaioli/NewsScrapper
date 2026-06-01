@@ -68,7 +68,7 @@ El código está organizado de forma modular para facilitar su mantenimiento:
 
 - 📂 `server.js`: Núcleo del servidor Express (Gestión de Scraping + Servidor Web).
 - 📂 `/medios`: Módulos especializados de scraping para cada diario argentino.
-- 📂 `/public`: Frontend estático, recursos visuales y almacenamiento de datos JSON.
+- 📂 `/public`: Frontend estático, recursos visuales y almacenamiento de datos JSON (directorio `/json` excluido de Git para optimizar commits).
 - 📂 `/ssl`: Directorio para certificados de seguridad.
 
 ---

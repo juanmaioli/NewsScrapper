@@ -2,3 +2,4 @@ node_modules
 .dev/
 GEMINI.md
 cache.db
+public/json/

@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import https from 'https';
 import { fileURLToPath } from 'url';
-import Database from 'better-sqlite3';
+
 
 // Importación de scrapers
 import { infobaeScrap } from './medios/infobae.js';
@@ -28,14 +28,15 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 8053;
 
-// Inicialización de SQLite para caché
-const db = new Database('cache.db');
-db.exec(`
-  CREATE TABLE IF NOT EXISTS cache_status (
-    medio_id TEXT PRIMARY KEY,
-    last_update INTEGER
-  )
-`);
+// Middleware global para desactivar el caché del navegador (No-Cache estricto)
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
+
+
 
 // Mapeo de medios a funciones de scrap
 const scraperMap = {
@@ -59,60 +60,40 @@ const scraperMap = {
 // Estado de scraping activo
 const activeScrapes = new Set();
 
-// Endpoint para disparar el scraping on-demand (Asíncrono con Caché SQLite)
-app.get('/api/scrap/:medio', (req, res) => {
+// Endpoint para disparar el scraping on-demand (Síncrono y en Tiempo Real)
+app.get('/api/scrap/:medio', async (req, res) => {
   const medioId = req.params.medio;
   const scraper = scraperMap[medioId];
-  const TTL_MINUTES = 30;
-  const now = Math.floor(Date.now() / 1000);
 
   if (!scraper) {
     return res.status(404).json({ error: 'Medio no encontrado' });
-  }
-
-  // Verificar Caché en SQLite y existencia física del archivo JSON
-  const jsonPath = path.join(__dirname, 'public', 'json', medioId);
-  const jsonExists = fs.existsSync(jsonPath) && fs.statSync(jsonPath).size > 10;
-
-  const row = db.prepare('SELECT last_update FROM cache_status WHERE medio_id = ?').get(medioId);
-  
-  if (jsonExists && row && (now - row.last_update) < (TTL_MINUTES * 60)) {
-    const timeRemaining = Math.ceil(((TTL_MINUTES * 60) - (now - row.last_update)) / 60);
-    console.log(`ℹ️ [Cache] Datos frescos para ${scraper.name}. Faltan ${timeRemaining} min para el próximo scrap.`);
-    return res.json({ 
-      success: true, 
-      message: `El caché de ${scraper.name} es reciente. Próxima actualización en ${timeRemaining} minutos.`,
-      status: 'cached'
-    });
   }
 
   if (activeScrapes.has(medioId)) {
     return res.json({ success: true, message: `La actualización de ${scraper.name} ya está en curso.`, status: 'processing' });
   }
 
-  // Iniciamos el proceso en "segundo plano"
+  // Iniciamos el proceso de scraping en tiempo real
   activeScrapes.add(medioId);
-  console.log(`⏳ [Background] Iniciando actualización para: ${scraper.name}`);
+  console.log(`⏳ [Realtime] Iniciando actualización en tiempo real para: ${scraper.name}`);
 
-  scraper.fn(20)
-    .then(() => {
-      console.log(`✅ [Background] Actualización completada para: ${scraper.name}`);
-      // Actualizar timestamp en SQLite
-      db.prepare('INSERT OR REPLACE INTO cache_status (medio_id, last_update) VALUES (?, ?)').run(medioId, Math.floor(Date.now() / 1000));
-    })
-    .catch((error) => {
-      console.error(`❌ [Background] Error al actualizar ${scraper.name}:`, error);
-    })
-    .finally(() => {
-      activeScrapes.delete(medioId);
+  try {
+    // Esperamos a que finalice la ejecución del scraping en tiempo real
+    await scraper.fn(20);
+    console.log(`✅ [Realtime] Actualización completada con éxito para: ${scraper.name}`);
+    res.json({ 
+      success: true, 
+      message: `Scraping de ${scraper.name} finalizado con éxito.`,
+      status: 'updated'
     });
-
-  // Respondemos inmediatamente al cliente
-  res.json({ 
-    success: true, 
-    message: `Iniciando actualización de ${scraper.name}. Los datos estarán listos en unos segundos.`,
-    status: 'started'
-  });
+  } catch (error) {
+    console.error(`❌ [Realtime] Error al actualizar ${scraper.name}:`, error);
+    res.status(500).json({ 
+      error: `Error al realizar el scraping en tiempo real de ${scraper.name}: ${error.message}` 
+    });
+  } finally {
+    activeScrapes.delete(medioId);
+  }
 });
 
 // Servir archivos estáticos solo desde la carpeta public
@@ -132,7 +113,7 @@ if (useHttps) {
     🚀 Servidor NewsScrapper activo (SECURE)
     🌍 URL: https://localhost:${PORT}
     📂 Sirviendo archivos desde: ${path.join(__dirname, 'public')}
-    ✨ Actualización asíncrona habilitada (Cache TTL: 30m)
+    ✨ Scraping en tiempo real habilitado (On-Demand)
     `);
   });
 } else {
@@ -141,7 +122,7 @@ if (useHttps) {
     🚀 Servidor NewsScrapper activo
     🌍 URL: http://localhost:${PORT}
     📂 Sirviendo archivos desde: ${path.join(__dirname, 'public')}
-    ✨ Actualización asíncrona habilitada (Cache TTL: 30m)
+    ✨ Scraping en tiempo real habilitado (On-Demand)
     `);
   });
 }

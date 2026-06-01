@@ -10,7 +10,6 @@ services:
           cpus: '0.5'
           memory: 512M
     volumes:
-      - ./cache.db:/app/cache.db
       - ./public/json:/app/public/json
       - ./ssl:/app/ssl
     restart: always

@@ -13,10 +13,10 @@
 - 🕷️ **Scraping On-Demand:** Actualización dinámica de noticias en tiempo real para más de 15 medios nacionales e internacionales.
 - 🔊 **Lectura Inmersiva (TTS):** Escucha noticias en un modal a pantalla completa con resaltado tipo karaoke y cierre automático.
 - 🎙️ **Personalización de Voz:** Selector dinámico de voces, control de velocidad y tono directamente desde la interfaz principal.
-- 🗄️ **Caché Inteligente (SQLite & Doble Factor):** Sistema de caché con **TTL de 30 minutos** sincronizado con SQLite y reforzado mediante **verificación física de existencia y tamaño de archivos JSON** para asegurar datos siempre íntegros.
-- ⚡ **Arquitectura Asíncrona Robusta:** La ingesta de datos corre en segundo plano y cuenta con propagación estricta de errores asíncronos (`throw e`), evitando bloqueos en la interfaz y bloqueos falsos de caché ante fallas de scraping.
+- ⚡ **Tiempo Real On-Demand:** Sistema síncrono que realiza el scraping del medio seleccionado de manera inmediata en cada cambio, asegurando la frescura absoluta de las noticias.
+- 🚫 **Cero Caché (Doble Factor):** Deshabilitación estricta de caché del navegador mediante cabeceras HTTP en el servidor Express (`Cache-Control: no-store`) y etiquetas meta en el `<head>` del HTML.
 - 📱 **Interfaz Premium Compacta:** Visualizador web basado en **Bootstrap 5.3** con soporte nativo de **Modo Oscuro**, optimización de contraste en footer de noticias, y un **panel de control horizontal unificado** de fácil lectura que integra volumen, selector de medios y tema en el header.
-- 🐳 **Optimización para Docker:** Imagen multi-etapa ultra-ligera, ejecución como usuario no privilegiado y compatibilidad total con Puppeteer/Chromium en Alpine.
+- 🐳 **Optimización Docker Extrema:** Dockerfile multi-etapa optimizado sin compiladores nativos de C++ (remoción de `better-sqlite3`), logrando un peso mínimo de la imagen y una velocidad de compilación superior.
 - 🔒 **Seguridad de Grado Bancario:** Soporte para **HTTPS (SSL)**, aislamiento de archivos sensibles y ejecución en entornos aislados.
 - 🇦🇷 **Cobertura Federal:** Scraping optimizado para Infobae, La Nación, El Cronista, Google News, LMN, Río Negro, Perfil, CNN y más.
 
@@ -58,7 +58,7 @@ Una vez iniciado el servidor, puedes acceder a la aplicación en:
 - 🔵 **HTTPS:** [https://localhost:8053](https://localhost:8053) *(Requiere configuración previa en `/ssl`)*
 
 **¿Cómo funciona?**
-Simplemente selecciona tu medio preferido en el menú desplegable. El sistema detectará automáticamente si los datos están frescos o si necesita realizar un nuevo scraping, manteniéndote siempre informado con el mínimo delay.
+Simplemente seleccioná tu medio preferido en el menú desplegable. El visualizador mostrará un spinner de carga dinámico mientras el servidor realiza la extracción síncrona en tiempo real del portal correspondiente. Una vez finalizada (toma unos pocos segundos), los datos se cargan de inmediato libres de cualquier almacenamiento local en caché.
 
 ---
 

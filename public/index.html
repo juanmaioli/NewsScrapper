@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="News Scrapper - Noticias actualizadas on-demand">
     <meta name="author" content="Juan Maioli">
+    
+    <!-- Desactivar Caché del Navegador -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>News Scrapper</title>
 
     <!-- Bootstrap core CSS -->
@@ -337,8 +342,8 @@
         loader.style.display = 'block'
 
         try {
-          // 2. Disparar el scraping asíncrono en el servidor
-          console.log('Solicitando actualización asíncrona para:', medio)
+          // 2. Disparar el scraping en tiempo real en el servidor
+          console.log('Solicitando noticias en tiempo real para:', medio)
           const scrapResponse = await fetch(`/api/scrap/${medio}`)
           const scrapResult = await scrapResponse.json()
 
@@ -346,12 +351,7 @@
 
           console.log('Servidor procesando:', scrapResult.message)
 
-          // 3. Esperar solo si es una actualización nueva
-          if (scrapResult.status === 'started') {
-            await new Promise(resolve => setTimeout(resolve, 5000))
-          }
-
-          // 4. Intentar obtener los nuevos datos del JSON
+          // 3. Obtener los nuevos datos del JSON
           const dataResponse = await fetch(`./json/${medio}?t=${Date.now()}`) // Cache busting
           const ultimasNoticias = await dataResponse.json()
 

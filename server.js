@@ -21,6 +21,12 @@ import { paparazziScrap } from './medios/paparazzi.js';
 import { genteScrap } from './medios/gente.js';
 import { carasScrap } from './medios/caras.js';
 import { tnScrap } from './medios/tn.js';
+import { cronicaScrap } from './medios/cronica.js';
+import { noticiasnqnScrap } from './medios/noticiasnqn.js';
+import { argentinagobScrap } from './medios/argentinagob.js';
+import { clarinScrap } from './medios/clarin.js';
+import { mejorinformadoScrap } from './medios/mejorinformado.js';
+import { thehearScrap } from './medios/thehear.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,6 +46,7 @@ app.use((req, res, next) => {
 
 // Mapeo de medios a funciones de scrap
 const scraperMap = {
+  'cronica.json': { name: 'Crónica', fn: cronicaScrap },
   'infobae.json': { name: 'Infobae', fn: infobaeScrap },
   'lmneuquen.json': { name: 'Lmneuquen', fn: lmneuquenScrap },
   'rionegro.json': { name: 'Rio Negro', fn: rionegroScrap },
@@ -54,7 +61,12 @@ const scraperMap = {
   'paparazzi.json': { name: 'Paparazzi', fn: paparazziScrap },
   'gente.json': { name: 'Revista Gente', fn: genteScrap },
   'caras.json': { name: 'Revista Caras', fn: carasScrap },
-  'tn.json': { name: 'TN', fn: tnScrap }
+  'tn.json': { name: 'TN', fn: tnScrap },
+  'noticiasnqn.json': { name: 'Noticias NQN', fn: noticiasnqnScrap },
+  'argentinagob.json': { name: 'Argentina Gob', fn: argentinagobScrap },
+  'clarin.json': { name: 'Clarín', fn: clarinScrap },
+  'mejorinformado.json': { name: 'Mejor Informado', fn: mejorinformadoScrap },
+  'thehear.json': { name: 'The Hear (España)', fn: thehearScrap }
 };
 
 // Estado de scraping activo

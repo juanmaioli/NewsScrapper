@@ -12,6 +12,7 @@
 
 - 🕷️ **Scraping On-Demand:** Actualización dinámica de noticias en tiempo real para más de 15 medios nacionales e internacionales.
 - ✨ **Resumen Consolidado de Portadas:** Panel interactivo que realiza scraping progresivo y concurrente (máximo 3 simultáneos) directamente desde la web al solicitarlo, con soporte de lectura por voz (TTS).
+- 🎨 **Paleta de Colores Personalizada:** Integración completa de la biblioteca de estilos `bootstrap-color-extension.css` para un diseño visual de alta fidelidad basado en el tono "night" (azul oblivion).
 - 🔊 **Lectura Inmersiva (TTS):** Escucha noticias en un modal a pantalla completa con resaltado tipo karaoke y cierre automático.
 - 🎙️ **Personalización de Voz:** Selector dinámico de voces, control de velocidad y tono directamente desde la interfaz principal.
 - ⚡ **Tiempo Real On-Demand:** Sistema síncrono que realiza el scraping del medio seleccionado de manera inmediata en cada cambio, asegurando la frescura absoluta de las noticias.

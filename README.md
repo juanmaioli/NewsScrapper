@@ -11,6 +11,7 @@
 ## ✨ Características Destacadas
 
 - 🕷️ **Scraping On-Demand:** Actualización dinámica de noticias en tiempo real para más de 15 medios nacionales e internacionales.
+- ✨ **Resumen Consolidado de Portadas:** Panel interactivo que agrupa y expone la primera noticia de cada medio con soporte directo para reproducción por voz (TTS).
 - 🔊 **Lectura Inmersiva (TTS):** Escucha noticias en un modal a pantalla completa con resaltado tipo karaoke y cierre automático.
 - 🎙️ **Personalización de Voz:** Selector dinámico de voces, control de velocidad y tono directamente desde la interfaz principal.
 - ⚡ **Tiempo Real On-Demand:** Sistema síncrono que realiza el scraping del medio seleccionado de manera inmediata en cada cambio, asegurando la frescura absoluta de las noticias.

@@ -246,6 +246,14 @@
       </div>
     </div>
       </div>
+      <!-- Botón de Resumen Consolidado -->
+      <div class="row mt-4 justify-content-center">
+        <div class="col-auto">
+          <button class="btn btn-warning btn-lg shadow-lg px-4 py-2 fw-bold text-dark border-0 rounded-pill" onclick="generarResumenConsolidado()">
+            ✨ Generar Resumen de Portadas
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -282,6 +290,31 @@
                 <p class="mt-2 text-warning fw-bold">Reproduciendo audio...</p>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Resumen Consolidado -->
+    <div class="modal fade" id="modalResumenConsolidado" tabindex="-1" aria-labelledby="modalResumenConsolidadoLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content shadow-2xl" style="background-color: var(--bg-color); color: var(--text-color); border: 1px solid rgba(255,255,255,0.1);">
+          <div class="modal-header border-bottom border-secondary-subtle">
+            <h5 class="modal-title fw-bold fs-3" id="modalResumenConsolidadoLabel">✨ Resumen de Portadas</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div id="resumenConsolidadoLoader" class="text-center py-5">
+              <div class="spinner-border text-warning" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Procesando...</span>
+              </div>
+              <h4 class="mt-3 fw-bold">Consolidando portadas...</h4>
+              <p class="text-secondary">Leyendo la primera noticia de cada medio disponible</p>
+            </div>
+            <div id="resumenConsolidadoContent" class="row row-cols-1 row-cols-md-2 g-4" style="display: none;"></div>
+          </div>
+          <div class="modal-footer border-top border-secondary-subtle">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
           </div>
         </div>
       </div>
@@ -585,6 +618,89 @@
         var hour = a.getHours().toString().padStart(2, '0');
         var min = a.getMinutes().toString().padStart(2, '0');
         return `${date}/${month}/${year} ${hour}:${min}`;
+      }
+
+      async function generarResumenConsolidado() {
+        const modalEl = document.getElementById('modalResumenConsolidado');
+        const bsModal = new bootstrap.Modal(modalEl);
+        const loader = document.getElementById('resumenConsolidadoLoader');
+        const content = document.getElementById('resumenConsolidadoContent');
+        
+        loader.style.display = 'block';
+        content.style.display = 'none';
+        content.innerHTML = '';
+        
+        bsModal.show();
+        
+        const selectMedios = document.getElementById('medios');
+        const options = Array.from(selectMedios.options);
+        
+        const promesas = options.map(async (opt) => {
+          const value = opt.value;
+          const name = opt.text;
+          
+          try {
+            const dataResponse = await fetch(`./json/${value}?t=${Date.now()}`);
+            if (!dataResponse.ok) return null;
+            const data = await dataResponse.json();
+            if (data && data.length > 0) {
+              return { medioName: name, noticia: data[0] };
+            }
+          } catch (e) {
+            console.warn(`No se pudo obtener noticia para ${name}:`, e.message);
+          }
+          return null;
+        });
+        
+        const resultados = await Promise.all(promesas);
+        const portadas = resultados.filter(Boolean);
+        
+        if (portadas.length === 0) {
+          content.innerHTML = '<div class="col-12 text-center my-5"><h4 class="text-secondary">No hay noticias cargadas en el servidor. Seleccioná un medio para cargarlo primero.</h4></div>';
+        } else {
+          window.consolidatedNews = portadas.map(p => p.noticia);
+          
+          portadas.forEach((item, index) => {
+            const n = item.noticia;
+            const cardHtml = `
+              <div class="col">
+                <div class="card h-100 shadow-sm border border-secondary-subtle" style="background-color: rgba(255,255,255,0.03); color: var(--text-color);">
+                  ${n.imagen ? `<img src="${n.imagen}" class="card-img-top object-fit-cover" style="height: 180px;" alt="${n.titular}" onerror="this.src='./img/No-Image-Placeholder.svg'">` : `<img src="./img/No-Image-Placeholder.svg" class="card-img-top object-fit-cover" style="height: 180px;" alt="No Image">`}
+                  <div class="card-body d-flex flex-column">
+                    <span class="badge bg-warning text-dark align-self-start mb-2">${item.medioName}</span>
+                    <h5 class="card-title fw-bold">${n.titular}</h5>
+                    <p class="card-text text-secondary flex-grow-1">${n.resumen || n.articulo.slice(0, 150) + '...'}</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary-subtle">
+                      <small class="text-secondary">${n.fechaArticulo || timeConverter(n.fechaObtenido)}</small>
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-outline-warning btn-sm" onclick="escucharNoticiaConsolidada(${index})" title="Escuchar noticia">🔊 Escuchar</button>
+                        <a href="${n.link}" target="_blank" class="btn btn-outline-light btn-sm">Original ↗️</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+            content.innerHTML += cardHtml;
+          });
+        }
+        
+        loader.style.display = 'none';
+        content.style.display = 'flex';
+      }
+
+      function escucharNoticiaConsolidada(index) {
+        const tempNews = window.currentNews;
+        window.currentNews = window.consolidatedNews;
+        
+        leerNoticia(index);
+        
+        const modalEl = document.getElementById('modalLectura');
+        const restoreHandler = () => {
+          window.currentNews = tempNews;
+          modalEl.removeEventListener('hidden.bs.modal', restoreHandler);
+        };
+        modalEl.addEventListener('hidden.bs.modal', restoreHandler);
       }
     </script>
   </body>

@@ -27,6 +27,9 @@ import { argentinagobScrap } from './medios/argentinagob.js';
 import { clarinScrap } from './medios/clarin.js';
 import { mejorinformadoScrap } from './medios/mejorinformado.js';
 import { thehearScrap } from './medios/thehear.js';
+import { infodefensaScrap } from './medios/infodefensa.js';
+import { galaxiamilitarScrap } from './medios/galaxiamilitar.js';
+import { zonamilitarScrap } from './medios/zonamilitar.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -66,7 +69,10 @@ const scraperMap = {
   'argentinagob.json': { name: 'Argentina Gob', fn: argentinagobScrap },
   'clarin.json': { name: 'Clarín', fn: clarinScrap },
   'mejorinformado.json': { name: 'Mejor Informado', fn: mejorinformadoScrap },
-  'thehear.json': { name: 'The Hear (España)', fn: thehearScrap }
+  'thehear.json': { name: 'The Hear (España)', fn: thehearScrap },
+  'infodefensa.json': { name: 'Infodefensa', fn: infodefensaScrap },
+  'galaxiamilitar.json': { name: 'Galaxia Militar', fn: galaxiamilitarScrap },
+  'zonamilitar.json': { name: 'Zona Militar', fn: zonamilitarScrap }
 };
 
 // Estado de scraping activo

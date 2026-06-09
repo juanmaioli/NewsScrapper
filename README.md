@@ -18,8 +18,8 @@
 - 📱 **Interfaz Premium Compacta:** Visualizador web basado en **Bootstrap 5.3** con soporte nativo de **Modo Oscuro**, optimización de contraste en footer de noticias, y un **panel de control horizontal unificado** de fácil lectura que integra volumen, selector de medios y tema en el header.
 - 🐳 **Optimización Docker Extrema:** Dockerfile multi-etapa optimizado sin compiladores nativos de C++ (remoción de `better-sqlite3`), logrando un peso mínimo de la imagen y una velocidad de compilación superior.
 - 🔒 **Seguridad de Grado Bancario:** Soporte para **HTTPS (SSL)**, aislamiento de archivos sensibles y ejecución en entornos aislados.
-- 🇦🇷 **Cobertura Federal e Internacional:** Scraping optimizado para Infobae, La Nación, Clarín, Crónica, El Cronista, Google News, LMN, Río Negro, Mejor Informado, Noticias NQN, Perfil, TN, Argentina Gob (Noticias), CNN en Español, El País y The Hear (España).
-- 🧬 **Robustez con JSON-LD:** El scraper de *The Hear* extrae los metadatos directamente de etiquetas estructuradas del estándar Schema.org, logrando una tolerancia absoluta a cambios de diseño del frontend.
+- 🇦🇷 Cobertura Federal, Militar e Internacional: Scraping optimizado para Infobae, La Nación, Clarín, Crónica, El Cronista, Google News, LMN, Río Negro, Mejor Informado, Noticias NQN, Perfil, TN, Argentina Gob (Noticias), CNN en Español, El País, The Hear (España), Infodefensa, Galaxia Militar y Zona Militar.
+- 🧬 Robustez con JSON-LD y Selectores Precisos: Los scrapers extraen metadatos directamente de etiquetas estructuradas del estándar Schema.org o mediante selectores semánticos ultra-precisos validados.
 
 ---
 

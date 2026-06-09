@@ -91,13 +91,15 @@ app.get('/api/scrap/:medio', async (req, res) => {
     return res.json({ success: true, message: `La actualización de ${scraper.name} ya está en curso.`, status: 'processing' });
   }
 
+  const limit = parseInt(req.query.limit) || 20;
+
   // Iniciamos el proceso de scraping en tiempo real
   activeScrapes.add(medioId);
-  console.log(`⏳ [Realtime] Iniciando actualización en tiempo real para: ${scraper.name}`);
+  console.log(`⏳ [Realtime] Iniciando actualización en tiempo real para: ${scraper.name} (Límite: ${limit})`);
 
   try {
     // Esperamos a que finalice la ejecución del scraping en tiempo real
-    await scraper.fn(20);
+    await scraper.fn(limit);
     console.log(`✅ [Realtime] Actualización completada con éxito para: ${scraper.name}`);
     res.json({ 
       success: true, 

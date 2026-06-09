@@ -15,6 +15,9 @@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
 
+        <!-- Bootstrap colorextension CSS -->
+    <link rel="stylesheet" href="./css/bootstrap-color-extension.css">
+
     <!-- Google Fonts-->
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 
@@ -249,7 +252,7 @@
       <!-- Botón de Resumen Consolidado -->
       <div class="row mt-4 justify-content-center">
         <div class="col-auto">
-          <button class="btn btn-warning btn-lg shadow-lg px-4 py-2 fw-bold text-dark border-0 rounded-pill" onclick="generarResumenConsolidado()">
+          <button class="btn btn-darkmagenta shadow-lg px-4 py-2 fw-bold border-0 rounded-pill" onclick="generarResumenConsolidado()">
             ✨ Generar Resumen de Portadas
           </button>
         </div>
@@ -301,7 +304,7 @@
         <div class="modal-content shadow-2xl" style="background-color: var(--bg-color); color: var(--text-color); border: 1px solid rgba(255,255,255,0.1);">
           <div class="modal-header border-bottom border-secondary-subtle d-flex align-items-center">
             <h5 class="modal-title fw-bold fs-3" id="modalResumenConsolidadoLabel">✨ Resumen de Portadas</h5>
-            <button id="btnEscucharTodoResumen" class="btn btn-warning fw-bold text-dark border-0 rounded-pill ms-3" style="display: none;" onclick="escucharTodoElResumen()">
+            <button id="btnEscucharTodoResumen" class="btn btn-darkmagenta fw-bold border-0 rounded-pill ms-3" style="display: none;" onclick="escucharTodoElResumen()">
               🔊 Escuchar resumen completo
             </button>
             <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -451,7 +454,7 @@
                   <div class="row align-items-center">
                     <div class="col-6">
                       <h5 class="mb-0 small">${noticia.medio}</h5>
-                      <span class="fst-italic smaller text-muted">${noticia.fechaArticulo || 'Sin fecha'}</span>
+                      <span class="fst-italic smaller">${noticia.fechaArticulo || 'Sin fecha'}</span>
                     </div>
                     <div class="col-6 p-0">
                       ${botones}
@@ -631,68 +634,90 @@
         const btnEscucharTodo = document.getElementById('btnEscucharTodoResumen');
         
         loader.style.display = 'block';
-        content.style.display = 'none';
-        btnEscucharTodo.style.display = 'none';
+        loader.querySelector('h4').innerText = 'Consolidando portadas en vivo...';
+        loader.querySelector('p').innerText = 'Iniciando scraping de todos los medios...';
+        
+        content.style.display = 'flex';
         content.innerHTML = '';
+        btnEscucharTodo.style.display = 'none';
         
         bsModal.show();
         
         const selectMedios = document.getElementById('medios');
         const options = Array.from(selectMedios.options);
         
-        const promesas = options.map(async (opt) => {
-          const value = opt.value;
-          const name = opt.text;
-          
-          try {
-            const dataResponse = await fetch(`./json/${value}?t=${Date.now()}`);
-            if (!dataResponse.ok) return null;
-            const data = await dataResponse.json();
-            if (data && data.length > 0) {
-              return { medioName: name, noticia: data[0] };
-            }
-          } catch (e) {
-            console.warn(`No se pudo obtener noticia para ${name}:`, e.message);
-          }
-          return null;
-        });
+        const portadas = [];
+        window.consolidatedNews = [];
         
-        const resultados = await Promise.all(promesas);
-        const portadas = resultados.filter(Boolean);
+        const maxConcurrencia = 3;
+        let indexMedio = 0;
         
-        if (portadas.length === 0) {
-          content.innerHTML = '<div class="col-12 text-center my-5"><h4 class="text-secondary">No hay noticias cargadas en el servidor. Seleccioná un medio para cargarlo primero.</h4></div>';
-        } else {
-          window.consolidatedNews = portadas.map(p => p.noticia);
-          
-          portadas.forEach((item, index) => {
-            const n = item.noticia;
-            const cardHtml = `
-              <div class="col">
-                <div class="card h-100 shadow-sm border border-secondary-subtle" style="background-color: rgba(255,255,255,0.03); color: var(--text-color);">
-                  ${n.imagen ? `<img src="${n.imagen}" class="card-img-top object-fit-cover" style="height: 180px;" alt="${n.titular}" onerror="this.src='./img/No-Image-Placeholder.svg'">` : `<img src="./img/No-Image-Placeholder.svg" class="card-img-top object-fit-cover" style="height: 180px;" alt="No Image">`}
-                  <div class="card-body d-flex flex-column">
-                    <span class="badge bg-warning text-dark align-self-start mb-2">${item.medioName}</span>
-                    <h5 class="card-title fw-bold">${n.titular}</h5>
-                    <p class="card-text text-secondary flex-grow-1">${n.resumen || n.articulo.slice(0, 150) + '...'}</p>
-                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary-subtle">
-                      <small class="text-secondary">${n.fechaArticulo || timeConverter(n.fechaObtenido)}</small>
-                      <div class="d-flex gap-2">
-                        <button class="btn btn-outline-warning btn-sm" onclick="escucharNoticiaConsolidada(${index})" title="Escuchar noticia">🔊 Escuchar</button>
-                        <a href="${n.link}" target="_blank" class="btn btn-outline-light btn-sm">Original ↗️</a>
-                      </div>
+        function agregarTarjetaAlModal(medioName, n, index) {
+          const cardHtml = `
+            <div class="col" id="card-consolidada-${index}">
+              <div class="card h-100 shadow-sm border border-secondary-subtle" style="background-color: rgba(255,255,255,0.03); color: var(--text-color);">
+                ${n.imagen ? `<img src="${n.imagen}" class="card-img-top object-fit-cover" style="height: 180px;" alt="${n.titular}" onerror="this.src='./img/No-Image-Placeholder.svg'">` : `<img src="./img/No-Image-Placeholder.svg" class="card-img-top object-fit-cover" style="height: 180px;" alt="No Image">`}
+                <div class="card-body d-flex flex-column">
+                  <span class="badge bg-warning align-self-start mb-2">${medioName}</span>
+                  <h5 class="card-title fw-bold">${n.titular}</h5>
+                  <p class="card-text text-secondary flex-grow-1">${n.resumen || n.articulo.slice(0, 150) + '...'}</p>
+                  <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary-subtle">
+                    <small class="text-secondary">${n.fechaArticulo || timeConverter(n.fechaObtenido)}</small>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-outline-warning btn-sm" onclick="escucharNoticiaConsolidada(${index})" title="Escuchar noticia">🔊 Escuchar</button>
+                      <a href="${n.link}" target="_blank" class="btn btn-outline-light btn-sm">Original ↗️</a>
                     </div>
                   </div>
                 </div>
               </div>
-            `;
-            content.innerHTML += cardHtml;
-          });
+            </div>
+          `;
+          content.innerHTML += cardHtml;
+        }
+
+        async function procesarSiguiente() {
+          if (indexMedio >= options.length) return;
+          const opt = options[indexMedio++];
+          const value = opt.value;
+          const name = opt.text;
+          
+          loader.querySelector('p').innerText = `Actualizando en vivo: ${name} (${indexMedio} de ${options.length})...`;
+          
+          try {
+            // Disparar scraping en tiempo real de la primera noticia
+            const scrapResponse = await fetch(`/api/scrap/${value}?limit=1`);
+            await scrapResponse.json();
+            
+            // Leer el archivo recién actualizado
+            const dataResponse = await fetch(`./json/${value}?t=${Date.now()}`);
+            if (dataResponse.ok) {
+              const data = await dataResponse.json();
+              if (data && data.length > 0) {
+                const itemIndex = portadas.length;
+                portadas.push(data[0]);
+                window.consolidatedNews.push(data[0]);
+                agregarTarjetaAlModal(name, data[0], itemIndex);
+              }
+            }
+          } catch (e) {
+            console.warn(`No se pudo obtener noticia en vivo para ${name}:`, e.message);
+          }
+          
+          await procesarSiguiente();
         }
         
+        // Ejecutar trabajadores en paralelo (límite de concurrencia)
+        const trabajadores = [];
+        for (let i = 0; i < Math.min(maxConcurrencia, options.length); i++) {
+          trabajadores.push(procesarSiguiente());
+        }
+        await Promise.all(trabajadores);
+        
         loader.style.display = 'none';
-        content.style.display = 'flex';
-        if (portadas.length > 0) {
+        
+        if (portadas.length === 0) {
+          content.innerHTML = '<div class="col-12 text-center my-5"><h4 class="text-secondary">No se pudo obtener ninguna noticia en tiempo real.</h4></div>';
+        } else {
           btnEscucharTodo.style.display = 'inline-block';
         }
       }

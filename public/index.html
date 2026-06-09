@@ -299,9 +299,12 @@
     <div class="modal fade" id="modalResumenConsolidado" tabindex="-1" aria-labelledby="modalResumenConsolidadoLabel" aria-hidden="true">
       <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content shadow-2xl" style="background-color: var(--bg-color); color: var(--text-color); border: 1px solid rgba(255,255,255,0.1);">
-          <div class="modal-header border-bottom border-secondary-subtle">
+          <div class="modal-header border-bottom border-secondary-subtle d-flex align-items-center">
             <h5 class="modal-title fw-bold fs-3" id="modalResumenConsolidadoLabel">✨ Resumen de Portadas</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button id="btnEscucharTodoResumen" class="btn btn-warning fw-bold text-dark border-0 rounded-pill ms-3" style="display: none;" onclick="escucharTodoElResumen()">
+              🔊 Escuchar resumen completo
+            </button>
+            <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body p-4">
             <div id="resumenConsolidadoLoader" class="text-center py-5">
@@ -625,9 +628,11 @@
         const bsModal = new bootstrap.Modal(modalEl);
         const loader = document.getElementById('resumenConsolidadoLoader');
         const content = document.getElementById('resumenConsolidadoContent');
+        const btnEscucharTodo = document.getElementById('btnEscucharTodoResumen');
         
         loader.style.display = 'block';
         content.style.display = 'none';
+        btnEscucharTodo.style.display = 'none';
         content.innerHTML = '';
         
         bsModal.show();
@@ -687,6 +692,9 @@
         
         loader.style.display = 'none';
         content.style.display = 'flex';
+        if (portadas.length > 0) {
+          btnEscucharTodo.style.display = 'inline-block';
+        }
       }
 
       function escucharNoticiaConsolidada(index) {
@@ -694,6 +702,34 @@
         window.currentNews = window.consolidatedNews;
         
         leerNoticia(index);
+        
+        const modalEl = document.getElementById('modalLectura');
+        const restoreHandler = () => {
+          window.currentNews = tempNews;
+          modalEl.removeEventListener('hidden.bs.modal', restoreHandler);
+        };
+        modalEl.addEventListener('hidden.bs.modal', restoreHandler);
+      }
+
+      function escucharTodoElResumen() {
+        if (!window.consolidatedNews || window.consolidatedNews.length === 0) return;
+        
+        const textoConsolidado = window.consolidatedNews.map((n) => {
+          const medioLabel = n.medio || 'Medio Desconocido';
+          return `En ${medioLabel}. ${n.titular}. ${n.resumen || n.articulo.slice(0, 150) + '...'}`;
+        }).join('\n\n');
+        
+        const noticiaFicticia = {
+          titular: "Resumen Completo de Portadas",
+          resumen: `Consolidado de las primeras noticias de los ${window.consolidatedNews.length} medios disponibles.`,
+          articulo: textoConsolidado,
+          imagen: ''
+        };
+        
+        const tempNews = window.currentNews;
+        window.currentNews = [noticiaFicticia];
+        
+        leerNoticia(0);
         
         const modalEl = document.getElementById('modalLectura');
         const restoreHandler = () => {
